@@ -1,22 +1,64 @@
 "use client";
 
 import { useState } from "react";
-import { ShieldAlert, Search, Activity, Wallet, AlertTriangle, Terminal, Cpu } from "lucide-react";
+import { ShieldAlert, Search, Activity, Wallet, AlertTriangle, Terminal, Cpu, PlusCircle, CheckCircle, Users } from "lucide-react";
 
 export default function Home() {
-  const [address, setAddress] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [analyzed, setAnalyzed] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [searchAnalyzed, setSearchAnalyzed] = useState(false);
+  
+  const [formUser, setFormUser] = useState("");
+  const [formNightRatio, setFormNightRatio] = useState("");
+  const [formRiskyRatio, setFormRiskyRatio] = useState("");
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const triggerAnalysis = (e: React.FormEvent) => {
+  const [mockUsers, setMockUsers] = useState([
+    { id: "User_01", wallet: "0x71C...3a9", nightRatio: "0.12", riskyRatio: "0.05", score: "14.20", status: "SAFE" },
+    { id: "User_02", wallet: "0x3F5...2b1", nightRatio: "0.89", riskyRatio: "0.74", score: "87.42", status: "SUSPICIOUS" },
+    { id: "User_03", wallet: "0x9A1...7e4", nightRatio: "0.25", riskyRatio: "0.10", score: "22.15", status: "SAFE" },
+    { id: "User_04", wallet: "0x5B8...9d2", nightRatio: "0.72", riskyRatio: "0.68", score: "79.90", status: "SUSPICIOUS" },
+    { id: "User_05", wallet: "0x2C4...4f8", nightRatio: "0.08", riskyRatio: "0.02", score: "09.50", status: "SAFE" }
+  ]);
+
+  const handleSearchAudit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!address) return;
-    setLoading(true);
-    setAnalyzed(false);
+    if (!searchQuery) return;
+    setLoadingSearch(true);
+    setSearchAnalyzed(false);
     setTimeout(() => {
-      setLoading(false);
-      setAnalyzed(true);
-    }, 1800);
+      setLoadingSearch(false);
+      setSearchAnalyzed(true);
+    }, 1200);
+  };
+
+  const handleInsertTransaction = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formUser || !formNightRatio || !formRiskyRatio) return;
+    setLoadingSubmit(true);
+    setSubmitSuccess(false);
+
+    setTimeout(() => {
+      const calculatedScore = (parseFloat(formNightRatio) * 50 + parseFloat(formRiskyRatio) * 50).toFixed(2);
+      const determinedStatus = parseFloat(calculatedScore) > 50 ? "SUSPICIOUS" : "SAFE";
+
+      const newUser = {
+        id: formUser,
+        wallet: "0x" + Math.random().toString(16).substring(2, 5).toUpperCase() + "..." + Math.random().toString(16).substring(2, 5).toUpperCase(),
+        nightRatio: parseFloat(formNightRatio).toFixed(2),
+        riskyRatio: parseFloat(formRiskyRatio).toFixed(2),
+        score: calculatedScore,
+        status: determinedStatus
+      };
+
+      setMockUsers([newUser, ...mockUsers]);
+      setLoadingSubmit(false);
+      setSubmitSuccess(true);
+      setFormUser("");
+      setFormNightRatio("");
+      setFormRiskyRatio("");
+    }, 1500);
   };
 
   return (
@@ -51,37 +93,149 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-6 backdrop-blur-sm">
-          <form onSubmit={triggerAnalysis} className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
-              <input
-                type="text"
-                placeholder="Enter target blockchain address (0x...)"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-xl pl-12 pr-4 py-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition font-mono tracking-wide"
-              />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-6 backdrop-blur-sm">
+              <h2 className="text-sm font-semibold tracking-wide text-slate-200 mb-4 flex items-center gap-2">
+                <Search className="w-4 h-4 text-blue-500" /> Advanced Forensic Query (Feature 1)
+              </h2>
+              <form onSubmit={handleSearchAudit} className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
+                  <input
+                    type="text"
+                    placeholder="Enter target username or ID (e.g., User_02)"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-xl pl-12 pr-4 py-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition font-mono tracking-wide"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={loadingSearch}
+                  className="px-6 py-3.5 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white font-medium text-sm rounded-xl shadow-lg shadow-blue-950/20 transition duration-150 flex items-center justify-center gap-2 min-w-[140px]"
+                >
+                  {loadingSearch ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Analyzing
+                    </>
+                  ) : (
+                    "Run Security Audit"
+                  )}
+                </button>
+              </form>
             </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-3.5 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white font-medium text-sm rounded-xl shadow-lg shadow-blue-950/20 transition duration-150 flex items-center justify-center gap-2 min-w-[140px]"
-            >
-              {loading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Analyzing
-                </>
-              ) : (
-                "Run Security Audit"
-              )}
-            </button>
-          </form>
+
+            <div className="bg-slate-900/20 border border-slate-900 rounded-2xl p-6 flex flex-col gap-4">
+              <div className="flex items-center justify-between border-b border-slate-900 pb-3">
+                <span className="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                  <Users className="w-4 h-4 text-blue-500" /> System Dataset Ledger Overview (Feature 2)
+                </span>
+                <span className="text-xs font-mono text-slate-500">Batch Prediction Mode Active</span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs font-mono">
+                  <thead>
+                    <tr className="border-b border-slate-900 text-slate-400">
+                      <th className="py-3 px-4 font-semibold">User ID</th>
+                      <th className="py-3 px-4 font-semibold">Target Address</th>
+                      <th className="py-3 px-4 font-semibold text-center">Night Activity</th>
+                      <th className="py-3 px-4 font-semibold text-center">Risky Interact</th>
+                      <th className="py-3 px-4 font-semibold text-right">Risk Score</th>
+                      <th className="py-3 px-4 font-semibold text-center">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-900/50">
+                    {mockUsers.map((user) => (
+                      <tr key={user.id} className="hover:bg-slate-900/30 transition duration-150">
+                        <td className="py-3.5 px-4 text-slate-200 font-bold">{user.id}</td>
+                        <td className="py-3.5 px-4 text-slate-500">{user.wallet}</td>
+                        <td className="py-3.5 px-4 text-center text-slate-400">{user.nightRatio}</td>
+                        <td className="py-3.5 px-4 text-center text-slate-400">{user.riskyRatio}</td>
+                        <td className="py-3.5 px-4 text-right font-bold text-blue-400">{user.score}</td>
+                        <td className="py-3.5 px-4 text-center">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            user.status === "SUSPICIOUS" 
+                              ? "bg-red-500/10 border border-red-500/20 text-red-400" 
+                              : "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
+                          }`}>
+                            {user.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-6">
+            <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-6 backdrop-blur-sm">
+              <h2 className="text-sm font-semibold tracking-wide text-slate-200 mb-4 flex items-center gap-2">
+                <PlusCircle className="w-4 h-4 text-blue-500" /> Simulate Real-time Transaction
+              </h2>
+              <form onSubmit={handleInsertTransaction} className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[11px] font-mono uppercase tracking-widest text-slate-500">Target User ID</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g., User_06"
+                    value={formUser}
+                    onChange={(e) => setFormUser(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none transition font-mono"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[11px] font-mono uppercase tracking-widest text-slate-500">Night Activity Ratio (0.0 - 1.0)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="1"
+                    required
+                    placeholder="e.g., 0.85"
+                    value={formNightRatio}
+                    onChange={(e) => setFormNightRatio(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none transition font-mono"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[11px] font-mono uppercase tracking-widest text-slate-500">Risky Counterparty Ratio (0.0 - 1.0)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="1"
+                    required
+                    placeholder="e.g., 0.70"
+                    value={formRiskyRatio}
+                    onChange={(e) => setFormRiskyRatio(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none transition font-mono"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={loadingSubmit}
+                  className="w-full mt-2 px-4 py-3 bg-slate-100 hover:bg-white text-slate-950 disabled:bg-slate-800 disabled:text-slate-500 font-bold text-xs uppercase tracking-wider rounded-xl transition duration-150 flex items-center justify-center gap-2"
+                >
+                  {loadingSubmit ? "Processing Matrix..." : "Push Transaction to IPFS"}
+                </button>
+                {submitSuccess && (
+                  <div className="flex items-center gap-2 text-emerald-400 font-mono text-[11px] mt-1 bg-emerald-950/10 border border-emerald-500/20 p-2.5 rounded-lg animate-in fade-in duration-200">
+                    <CheckCircle className="w-4 h-4 shrink-0" />
+                    <span>Inference complete. Ledger sync'd with Smart Contract Registry CID.</span>
+                  </div>
+                )}
+              </form>
+            </div>
+          </div>
         </div>
 
-        {analyzed && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
+        {searchAnalyzed && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 anonymity-trace animate-in fade-in slide-in-from-bottom-4 duration-300">
             <div className="bg-slate-900/20 border border-red-500/20 rounded-2xl p-6 flex flex-col gap-6 relative overflow-hidden bg-gradient-to-b from-red-950/5 to-transparent">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold tracking-wide text-slate-400">Risk Assessment</span>
