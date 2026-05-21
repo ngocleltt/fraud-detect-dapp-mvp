@@ -24,14 +24,20 @@ DApp phát hiện ví gian lận sử dụng mô hình lưu trữ lai (Hybrid St
   * FastAPI tiếp nhận dữ liệu giao dịch mới từ Frontend -> Tính toán lại các chỉ số đặc trưng -> Đẩy vào mô hình `model.pkl` chấm điểm real-time -> Trả kết quả trạng thái về cho Frontend, đồng thời kích hoạt luồng cập nhật dữ liệu lên IPFS và Blockchain.
 
 
+---
+### 10 features được chọn: 
+* `Total ERC20 tnxs`
+* `ERC20 uniq rec contract addr`
+* `ERC20 uniq rec token name`
+* `ERC20 uniq rec addr`
+* `Time Diff between first and last (Mins)`
+* `total ether received`
+* `Avg min between received tnx`
+* `avg val received` 
+* `total transactions (including tnx to create contract)` 
+* `Unique Received From Addresses`
 
-* 10 features được chọn: 
-`Total ERC20 tnxs`
-`ERC20 uniq rec contract addr`
-`ERC20 uniq rec token name`
-`ERC20 uniq rec addr`
-`Time Diff between first and last (Mins)`
-`total ether received`
-`Avg min between received tnx`
-`avg val received` `total transactions (including tnx to create contract)` 
-`Unique Received From Addresses`
+---
+### How to run
+* frontend : npm run dev
+* backend : uvicorn main:app --reload --port 8000

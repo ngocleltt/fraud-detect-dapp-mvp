@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LayoutDashboard, Search, PlusCircle, HelpCircle } from "lucide-react";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -9,21 +9,28 @@ import AuditView from "./components/AuditView";
 import SimulateView from "./components/SimulateView";
 import HowItWorksView from "./components/HowItWorksView";
 
+interface UserFeatures {
+  total_received: number;
+  total_sent: number;
+  num_transactions: number;
+  avg_transaction_value: number;
+  max_transaction_value: number;
+  transaction_frequency: number;
+  unique_counterparties: number;
+  account_age_days: number;
+  in_out_ratio: number;
+  night_activity_ratio: number;
+  known_risky_counterparty_ratio: number;
+}
+
 interface UserRow {
-  userId: string;
-  walletAddress: string;
-  totalErc20Txs: number;
-  erc20UniqRecContractAddr: number;
-  erc20UniqRecTokenName: number;
-  erc20UniqRecAddr: number;
-  timeDiffFirstLastMins: number;
-  totalEtherReceived: number;
-  avgMinBetweenReceivedTx: number;
-  avgValReceived: number;
-  totalTransactions: number;
-  uniqueReceivedFromAddrs: number;
-  riskScore: number;
-  status: "SAFE" | "SUSPICIOUS";
+  user_id: string;
+  target_address: string;
+  night_activity: number;
+  risky_interact: number;
+  risk_score: number;
+  classification: "safe" | "suspicious";
+  features: UserFeatures;
 }
 
 interface LogEntry {
@@ -35,55 +42,38 @@ export default function Home() {
   const [currentMenu, setCurrentMenu] = useState("overview");
   const [filterStatus, setFilterStatus] = useState<"ALL" | "SAFE" | "SUSPICIOUS">("ALL");
   const [walletState, setWalletState] = useState({ isConnected: false, address: "" });
+  const [users, setUsers] = useState<UserRow[]>([]);
 
   const [terminalLogs, setTerminalLogs] = useState<LogEntry[]>([
     { timestamp: "00:00:01", message: "SYS // ChainEye Forensics Engine initialised successfully." },
     { timestamp: "00:00:02", message: "IPFS // Connection verified. CID record buffer loaded." },
-    { timestamp: "00:00:03", message: "AI // Logistic Regression model binary weights online." }
-  ]);
-
-  const [users, setUsers] = useState<UserRow[]>([
-    {
-      userId: "User_01",
-      walletAddress: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-      totalErc20Txs: 45,
-      erc20UniqRecContractAddr: 12,
-      erc20UniqRecTokenName: 8,
-      erc20UniqRecAddr: 15,
-      timeDiffFirstLastMins: 14400,
-      totalEtherReceived: 25.45,
-      avgMinBetweenReceivedTx: 320.5,
-      avgValReceived: 1.25,
-      totalTransactions: 60,
-      uniqueReceivedFromAddrs: 18,
-      riskScore: 12.5,
-      status: "SAFE"
-    },
-    {
-      userId: "User_02",
-      walletAddress: "0x3194c23C31ec41B72dcECB7A7079207e37E74C4B",
-      totalErc20Txs: 850,
-      erc20UniqRecContractAddr: 1,
-      erc20UniqRecTokenName: 1,
-      erc20UniqRecAddr: 1,
-      timeDiffFirstLastMins: 120,
-      totalEtherReceived: 1500.0,
-      avgMinBetweenReceivedTx: 0.45,
-      avgValReceived: 150.0,
-      totalTransactions: 900,
-      uniqueReceivedFromAddrs: 1,
-      riskScore: 94.82,
-      status: "SUSPICIOUS"
-    }
+    { timestamp: "00:00:03", message: "AI // Logistic Regression model weights online." }
   ]);
 
   const getCurrentTimeString = () => {
     return new Date().toLocaleTimeString();
   };
 
+  const fetchUsersFromBackend = async () => {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/users");
+      if (res.ok) {
+        const data = await res.json();
+        setUsers(data.users || []);
+        setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `REST // Fetched ${data.users?.length || 0} wallet records from server storage.` }]);
+      }
+    } catch (err) {
+      setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: "ERR // Backend node connection timeout." }]);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsersFromBackend();
+  }, []);
+
   const handleConnectWallet = () => {
-    setWalletState({ isConnected: true, address: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e" });
-    setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: "WALLET // Connected via Account identity 0x742d...f44e" }]);
+    setWalletState({ isConnected: true, address: "0x3f5CE5FBFe3E9af3971dD833D26bA9b5C936f0bE" });
+    setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: "WALLET // Connected via MetaMask account signature." }]);
   };
 
   const handleDisconnectWallet = () => {
@@ -91,19 +81,53 @@ export default function Home() {
     setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: "WALLET // Session detached by user authorization." }]);
   };
 
-  const handleAuditSearch = (id: string) => {
-    setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `AUDIT // Queried target target data buffer for identity: [${id}]` }]);
-    return users.find(u => u.userId.toLowerCase() === id.toLowerCase() || u.walletAddress.toLowerCase() === id.toLowerCase()) || null;
+  const handleAuditSearch = async (id: string): Promise<UserRow | null> => {
+    setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `AUDIT // Contacting registry for node: [${id}]` }]);
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/api/users/${id}`);
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: "ERR // Registry fetch stream broken." }]);
+    }
+    return null;
   };
 
-  const handleSimulateSubmit = (formData: any) => {
-    const calculatedRisk = formData.avgMinBetweenReceivedTx < 5 && formData.avgValReceived > 50 ? 89.5 : 15.4;
-    const determinedStatus = calculatedRisk > 50 ? "SUSPICIOUS" : "SAFE";
+  const handleSimulateSubmit = async (rawFormData: any) => {
+    const apiPayload = {
+      user_id: rawFormData.user_id,
+      target_address: rawFormData.target_address,
+      features: {
+        total_received: rawFormData.total_received,
+        total_sent: rawFormData.total_sent,
+        num_transactions: rawFormData.num_transactions,
+        avg_transaction_value: rawFormData.avg_transaction_value,
+        max_transaction_value: rawFormData.max_transaction_value,
+        transaction_frequency: rawFormData.transaction_frequency,
+        unique_counterparties: rawFormData.unique_counterparties,
+        account_age_days: rawFormData.account_age_days,
+        in_out_ratio: rawFormData.in_out_ratio,
+        night_activity_ratio: rawFormData.night_activity_ratio,
+        known_risky_counterparty_ratio: rawFormData.known_risky_counterparty_ratio
+      }
+    };
 
-    const newUser: UserRow = { ...formData, riskScore: calculatedRisk, status: determinedStatus };
-    setUsers(prev => [newUser, ...prev]);
-    setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `SIM // Registered execution stream for ${formData.userId}. Risk computation: ${calculatedRisk}%` }]);
-    setCurrentMenu("overview");
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/simulate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(apiPayload)
+      });
+      if (res.ok) {
+        const freshUser = await res.json();
+        setUsers(prev => [freshUser, ...prev]);
+        setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `SIM // Network entry approved. Label: ${freshUser.classification.toUpperCase()}` }]);
+        setCurrentMenu("overview");
+      }
+    } catch (err) {
+      setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: "ERR // Simulation transmission collapsed." }]);
+    }
   };
 
   return (

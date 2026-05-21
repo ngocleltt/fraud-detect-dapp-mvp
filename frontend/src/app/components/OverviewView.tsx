@@ -2,21 +2,28 @@
 
 import { Eye, AlertTriangle, Server, Activity } from "lucide-react";
 
+interface UserFeatures {
+  total_received: number;
+  total_sent: number;
+  num_transactions: number;
+  avg_transaction_value: number;
+  max_transaction_value: number;
+  transaction_frequency: number;
+  unique_counterparties: number;
+  account_age_days: number;
+  in_out_ratio: number;
+  night_activity_ratio: number;
+  known_risky_counterparty_ratio: number;
+}
+
 interface UserRow {
-  userId: string;
-  walletAddress: string;
-  totalErc20Txs: number;
-  erc20UniqRecContractAddr: number;
-  erc20UniqRecTokenName: number;
-  erc20UniqRecAddr: number;
-  timeDiffFirstLastMins: number;
-  totalEtherReceived: number;
-  avgMinBetweenReceivedTx: number;
-  avgValReceived: number;
-  totalTransactions: number;
-  uniqueReceivedFromAddrs: number;
-  riskScore: number;
-  status: "SAFE" | "SUSPICIOUS";
+  user_id: string;
+  target_address: string;
+  night_activity: number;
+  risky_interact: number;
+  risk_score: number;
+  classification: "safe" | "suspicious";
+  features: UserFeatures;
 }
 
 interface LogEntry {
@@ -32,8 +39,13 @@ interface OverviewViewProps {
 }
 
 export default function OverviewView({ users, filterStatus, setFilterStatus, terminalLogs }: OverviewViewProps) {
-  const filteredUsers = users.filter(user => filterStatus === "ALL" || user.status === filterStatus);
-  const suspiciousCount = users.filter(u => u.status === "SUSPICIOUS").length;
+  const filteredUsers = users.filter(user => {
+    if (filterStatus === "ALL") return true;
+    if (filterStatus === "SAFE") return user.classification === "safe";
+    return user.classification === "suspicious";
+  });
+
+  const suspiciousCount = users.filter(u => u.classification === "suspicious").length;
   const fraudRate = users.length > 0 ? ((suspiciousCount / users.length) * 100).toFixed(1) : "0.0";
 
   return (
@@ -42,7 +54,7 @@ export default function OverviewView({ users, filterStatus, setFilterStatus, ter
         <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-xs font-medium text-slate-400">Total Evaluated Wallets</p>
-            <p className="text-2xl font-bold text-slate-800 mt-1">{users.length} Contracts</p>
+            <p className="text-2xl font-bold text-slate-800 mt-1">{users.length} Records</p>
           </div>
           <div className="p-3 bg-blue-50 text-blue-600 rounded-lg"><Eye className="w-5 h-5" /></div>
         </div>
@@ -85,16 +97,17 @@ export default function OverviewView({ users, filterStatus, setFilterStatus, ter
             <thead>
               <tr className="border-b border-slate-200 text-slate-500 font-semibold bg-slate-50/70">
                 <th className="p-3">User ID</th>
-                <th className="p-3">Total ERC20 Tx</th>
-                <th className="p-3">Uniq Contract</th>
-                <th className="p-3">Uniq Token</th>
-                <th className="p-3">Uniq RecAddr</th>
-                <th className="p-3">Time Diff (Mins)</th>
-                <th className="p-3">Total ETH Rec</th>
-                <th className="p-3">Avg Min Rec</th>
-                <th className="p-3">Avg Val Rec</th>
-                <th className="p-3">Total Txs</th>
-                <th className="p-3">Uniq From</th>
+                <th className="p-3">Total Recv</th>
+                <th className="p-3">Total Sent</th>
+                <th className="p-3">Tx Count</th>
+                <th className="p-3">Avg Val</th>
+                <th className="p-3">Max Val</th>
+                <th className="p-3">Freq</th>
+                <th className="p-3">Uniq Counter</th>
+                <th className="p-3">Age (Days)</th>
+                <th className="p-3">In/Out</th>
+                <th className="p-3">Night %</th>
+                <th className="p-3">Risky %</th>
                 <th className="p-3 text-right">Risk Score</th>
                 <th className="p-3 text-center">Status</th>
               </tr>
@@ -102,21 +115,22 @@ export default function OverviewView({ users, filterStatus, setFilterStatus, ter
             <tbody className="divide-y divide-slate-100">
               {filteredUsers.map((user, idx) => (
                 <tr key={idx} className="hover:bg-slate-50/80 transition-colors font-mono text-slate-600">
-                  <td className="p-3 text-blue-600 font-sans font-semibold">{user.userId}</td>
-                  <td className="p-3">{user.totalErc20Txs}</td>
-                  <td className="p-3">{user.erc20UniqRecContractAddr}</td>
-                  <td className="p-3">{user.erc20UniqRecTokenName}</td>
-                  <td className="p-3">{user.erc20UniqRecAddr}</td>
-                  <td className="p-3">{user.timeDiffFirstLastMins}</td>
-                  <td className="p-3">{user.totalEtherReceived}</td>
-                  <td className="p-3">{user.avgMinBetweenReceivedTx}</td>
-                  <td className="p-3">{user.avgValReceived}</td>
-                  <td className="p-3">{user.totalTransactions}</td>
-                  <td className="p-3">{user.uniqueReceivedFromAddrs}</td>
-                  <td className={`p-3 text-right font-bold ${user.status === "SUSPICIOUS" ? "text-rose-600" : "text-emerald-600"}`}>{user.riskScore}%</td>
+                  <td className="p-3 text-blue-600 font-sans font-semibold">{user.user_id}</td>
+                  <td className="p-3">{user.features.total_received.toFixed(1)}</td>
+                  <td className="p-3">{user.features.total_sent.toFixed(1)}</td>
+                  <td className="p-3">{user.features.num_transactions}</td>
+                  <td className="p-3">{user.features.avg_transaction_value.toFixed(1)}</td>
+                  <td className="p-3">{user.features.max_transaction_value.toFixed(1)}</td>
+                  <td className="p-3">{user.features.transaction_frequency}</td>
+                  <td className="p-3">{user.features.unique_counterparties}</td>
+                  <td className="p-3">{user.features.account_age_days}</td>
+                  <td className="p-3">{user.features.in_out_ratio}</td>
+                  <td className="p-3">{user.features.night_activity_ratio}</td>
+                  <td className="p-3">{user.features.known_risky_counterparty_ratio}</td>
+                  <td className={`p-3 text-right font-bold ${user.classification === "suspicious" ? "text-rose-600" : "text-emerald-600"}`}>{(user.risk_score * 100).toFixed(0)}%</td>
                   <td className="p-3 text-center">
-                    <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded ${user.status === "SUSPICIOUS" ? "bg-rose-50 text-rose-600 border border-rose-200" : "bg-emerald-50 text-emerald-600 border border-emerald-200"}`}>
-                      {user.status}
+                    <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded ${user.classification === "suspicious" ? "bg-rose-50 text-rose-600 border border-rose-200" : "bg-emerald-50 text-emerald-600 border border-emerald-200"}`}>
+                      {user.classification.toUpperCase()}
                     </span>
                   </td>
                 </tr>
