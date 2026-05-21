@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { LayoutDashboard, Search, PlusCircle, Activity } from "lucide-react";
+import { LayoutDashboard, Search, PlusCircle, Activity, HelpCircle, Shield, Eye, Server, BarChart3, AlertTriangle } from "lucide-react";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
@@ -22,10 +22,27 @@ interface UserRow {
   status: "SAFE" | "SUSPICIOUS";
 }
 
+interface LogEntry {
+  timestamp: string;
+  message: string;
+}
+
 export default function Home() {
   const [currentMenu, setCurrentMenu] = useState("overview");
+  const [filterStatus, setFilterStatus] = useState<"ALL" | "SAFE" | "SUSPICIOUS">("ALL");
   const [searchId, setSearchId] = useState("");
   const [searchResult, setSearchResult] = useState<UserRow | null>(null);
+
+  const [walletState, setWalletState] = useState({
+    isConnected: false,
+    address: "",
+  });
+
+  const [terminalLogs, setTerminalLogs] = useState<LogEntry[]>([
+    { timestamp: "00:00:01", message: "SYS // ChainEye Forensics Engine initialised successfully." },
+    { timestamp: "00:00:02", message: "IPFS // Connection verified. CID record buffer loaded." },
+    { timestamp: "00:00:03", message: "AI // Logistic Regression model binary weights online." }
+  ]);
 
   const [formData, setFormData] = useState({
     userId: "",
@@ -77,10 +94,37 @@ export default function Home() {
     }
   ]);
 
+  const getCurrentTimeString = () => {
+    return new Date().toLocaleTimeString();
+  };
+
+  const handleConnectWallet = () => {
+    setWalletState({
+      isConnected: true,
+      address: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    });
+    setTerminalLogs(prev => [
+      ...prev, 
+      { timestamp: getCurrentTimeString(), message: "WALLET // Connected via Account identity 0x742d...f44e" }
+    ]);
+  };
+
+  const handleDisconnectWallet = () => {
+    setWalletState({ isConnected: false, address: "" });
+    setTerminalLogs(prev => [
+      ...prev, 
+      { timestamp: getCurrentTimeString(), message: "WALLET // Session detached by user authorization." }
+    ]);
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const found = users.find(u => u.userId.toLowerCase() === searchId.toLowerCase() || u.walletAddress.toLowerCase() === searchId.toLowerCase());
     setSearchResult(found || null);
+    setTerminalLogs(prev => [
+      ...prev, 
+      { timestamp: getCurrentTimeString(), message: `AUDIT // Queried target target data buffer for identity: [${searchId}]` }
+    ]);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,6 +149,10 @@ export default function Home() {
     };
 
     setUsers(prev => [newUser, ...prev]);
+    setTerminalLogs(prev => [
+      ...prev, 
+      { timestamp: getCurrentTimeString(), message: `SIM // Registered execution stream for ${formData.userId}. Risk computation: ${calculatedRisk}%` }
+    ]);
     setFormData({
       userId: "",
       walletAddress: "",
@@ -122,9 +170,16 @@ export default function Home() {
     setCurrentMenu("overview");
   };
 
+  const filteredUsers = users.filter(user => filterStatus === "ALL" || user.status === filterStatus);
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col">
-      <Header />
+      <Header 
+        isConnected={walletState.isConnected} 
+        walletAddress={walletState.address} 
+        onConnect={handleConnectWallet}
+        onDisconnect={handleDisconnectWallet}
+      />
 
       <div className="flex flex-1">
         <aside className="w-64 border-r border-slate-200 p-4 space-y-1 bg-white">
@@ -150,20 +205,66 @@ export default function Home() {
             <PlusCircle className="w-4 h-4" />
             Simulate Transaction
           </button>
+          <button
+            onClick={() => setCurrentMenu("how-it-works")}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors ${currentMenu === "how-it-works" ? "bg-blue-50 text-blue-600 border border-blue-100" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}
+          >
+            <HelpCircle className="w-4 h-4" />
+            How It Works
+          </button>
         </aside>
 
-        <main className="flex-1 p-6 overflow-hidden">
+        <main className="flex-1 p-6 overflow-hidden flex flex-col gap-6">
           {currentMenu === "overview" && (
-            <div className="space-y-6 animate-fadeIn">
-              <section className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm overflow-hidden">
-                <div className="flex items-center gap-2 mb-4">
-                  <Activity className="text-blue-600 w-5 h-5" />
-                  <h2 className="text-sm font-bold tracking-wider text-slate-700">PRE-EVALUATED CONTRACT DATASET (BATCH MODE)</h2>
+            <div className="space-y-6 animate-fadeIn flex flex-col flex-1">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-medium text-slate-400">Total Evaluated Wallets</p>
+                    <p className="text-2xl font-bold text-slate-800 mt-1">{users.length} Contracts</p>
+                  </div>
+                  <div className="p-3 bg-blue-50 text-blue-600 rounded-lg"><Eye className="w-5 h-5" /></div>
                 </div>
-                <div className="overflow-x-auto">
+                <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-medium text-slate-400">Anomalous Anomaly Rate</p>
+                    <p className="text-2xl font-bold text-rose-600 mt-1">
+                      {((users.filter(u => u.status === "SUSPICIOUS").length / users.length) * 100).toFixed(1)}%
+                    </p>
+                  </div>
+                  <div className="p-3 bg-rose-50 text-rose-600 rounded-lg"><AlertTriangle className="w-5 h-5" /></div>
+                </div>
+                <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-medium text-slate-400">System Storage Fabric</p>
+                    <p className="text-sm font-bold text-slate-700 mt-2">IPFS Decentralised CID</p>
+                  </div>
+                  <div className="p-3 bg-indigo-50 text-indigo-600 rounded-lg"><Server className="w-5 h-5" /></div>
+                </div>
+              </div>
+
+              <section className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm overflow-hidden flex-1 flex flex-col">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                  <div className="flex items-center gap-2">
+                    <Activity className="text-blue-600 w-5 h-5" />
+                    <h2 className="text-sm font-bold tracking-wider text-slate-700">PRE-EVALUATED CONTRACT DATASET (BATCH MODE)</h2>
+                  </div>
+                  <div className="flex border border-slate-200 rounded-lg p-0.5 bg-slate-50 self-start">
+                    {(["ALL", "SAFE", "SUSPICIOUS"] as const).map((status) => (
+                      <button
+                        key={status}
+                        onClick={() => setFilterStatus(status)}
+                        className={`px-3 py-1 text-[11px] font-semibold rounded-md transition-colors ${filterStatus === status ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
+                      >
+                        {status}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="overflow-x-auto flex-1">
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>
-                      <tr className="border-b border-slate-200 text-slate-500 font-semibold bg-slate-50">
+                      <tr className="border-b border-slate-200 text-slate-500 font-semibold bg-slate-50/70">
                         <th className="p-3">User ID</th>
                         <th className="p-3">Total ERC20 Tx</th>
                         <th className="p-3">Uniq Contract</th>
@@ -180,7 +281,7 @@ export default function Home() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {users.map((user, idx) => (
+                      {filteredUsers.map((user, idx) => (
                         <tr key={idx} className="hover:bg-slate-50/80 transition-colors font-mono text-slate-600">
                           <td className="p-3 text-blue-600 font-sans font-semibold">{user.userId}</td>
                           <td className="p-3">{user.totalErc20Txs}</td>
@@ -203,6 +304,20 @@ export default function Home() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              </section>
+
+              <section className="bg-slate-900 text-slate-400 p-4 rounded-xl font-mono text-[11px] shadow-sm border border-slate-800">
+                <div className="flex items-center gap-2 mb-2 border-b border-slate-800 pb-2 text-slate-500 font-sans font-bold tracking-widest">
+                  <BarChart3 className="w-3.5 h-3.5 text-blue-500" /> LIVE FORENSIC TELEMETRY STREAM
+                </div>
+                <div className="space-y-1 max-h-24 overflow-y-auto">
+                  {terminalLogs.map((log, index) => (
+                    <div key={index} className="flex gap-2">
+                      <span className="text-slate-600">[{log.timestamp}]</span>
+                      <span>{log.message}</span>
+                    </div>
+                  ))}
                 </div>
               </section>
             </div>
@@ -324,6 +439,43 @@ export default function Home() {
                     Push Transaction Flow
                   </button>
                 </form>
+              </section>
+            </div>
+          )}
+
+          {currentMenu === "how-it-works" && (
+            <div className="animate-fadeIn max-w-3xl space-y-6">
+              <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <Shield className="text-blue-600 w-5 h-5" />
+                  <h2 className="text-sm font-bold tracking-wider text-slate-700">CHAINEYE CORE ARCHITECTURE SPECIFICATION</h2>
+                </div>
+                <p className="text-xs text-slate-500 leading-relaxed mb-6">
+                  ChainEye Forensics utilizes a hybrid off-chain processing architecture optimized with Ethereum smart contract verification layers to reliably predict and register transaction security anomalies.
+                </p>
+                <div className="space-y-4">
+                  <div className="flex gap-4 items-start p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <div className="bg-blue-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0">1</div>
+                    <div>
+                      <h3 className="text-xs font-bold text-slate-700 mb-1">Feature Extraction Array</h3>
+                      <p className="text-xs text-slate-500 leading-relaxed">The engine continuously maps 10 mathematical transaction attributes derived directly from Ethereum Fraud Detection paradigms.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-start p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <div className="bg-blue-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0">2</div>
+                    <div>
+                      <h3 className="text-xs font-bold text-slate-700 mb-1">Off-Chain Logistic Inference</h3>
+                      <p className="text-xs text-slate-500 leading-relaxed">Incoming streaming logs are fed down to a standalone Python FastAPI system evaluating dataset entries against trained Logistic Regression matrices.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-start p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <div className="bg-blue-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0">3</div>
+                    <div>
+                      <h3 className="text-xs font-bold text-slate-700 mb-1">On-Chain CID Data Cryptography</h3>
+                      <p className="text-xs text-slate-500 leading-relaxed">Evaluated batches are packaged into formal JSON profiles hosted decentralized on IPFS networks. The unique storage CID hashes are safely anchored inside immutable Ethereum Smart Contracts.</p>
+                    </div>
+                  </div>
+                </div>
               </section>
             </div>
           )}
