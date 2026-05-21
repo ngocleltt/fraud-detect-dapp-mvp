@@ -22,3 +22,16 @@ DApp phát hiện ví gian lận sử dụng mô hình lưu trữ lai (Hybrid St
 * **Core Logic Layer (AI + API):**
   * Mô hình AI (Logistic Regression) học dựa trên 11 chỉ số giao dịch (volume, tần suất, tỷ lệ giao dịch đêm, ví rủi ro...).
   * FastAPI tiếp nhận dữ liệu giao dịch mới từ Frontend -> Tính toán lại các chỉ số đặc trưng -> Đẩy vào mô hình `model.pkl` chấm điểm real-time -> Trả kết quả trạng thái về cho Frontend, đồng thời kích hoạt luồng cập nhật dữ liệu lên IPFS và Blockchain.
+
+
+
+* 10 features được chọn: 
+`Total ERC20 tnxs`
+`ERC20 uniq rec contract addr`
+`ERC20 uniq rec token name`
+`ERC20 uniq rec addr`
+`Time Diff between first and last (Mins)`
+`total ether received`
+`Avg min between received tnx`
+`avg val received` `total transactions (including tnx to create contract)` 
+`Unique Received From Addresses`
