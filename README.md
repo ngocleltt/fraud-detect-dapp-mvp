@@ -2,7 +2,7 @@
 An AI-powered DApp MVP for detecting suspicious behavior and anomalies in blockchain networks based on transaction analysis.
 
 Tema : Разработка системы выявления подозрительного поведения пользователей в блокчейн-сетях на основе анализа транзакций с использованием методов искусственного интеллекта.
-DApp phát hiện ví gian lận sử dụng mô hình lưu trữ lai (Hybrid Storage) và chấm điểm bằng AI (Logistic Regression). 
+DApp phát hiện ví gian lận sử dụng mô hình lưu trữ lai (Hybrid Storage) và chấm điểm bằng AI (XGBoost). 
 
 ---
 
@@ -20,7 +20,7 @@ DApp phát hiện ví gian lận sử dụng mô hình lưu trữ lai (Hybrid St
 * Smart Contract Solidity (`DatasetRegistry.sol`) lưu trữ duy nhất chuỗi mã **CID** của file dữ liệu trên chuỗi. Khi DB thay đổi, Backend sẽ push file mới lên IPFS và ký giao dịch cập nhật CID mới lên Contract.
     
 * **Core Logic Layer (AI + API):**
-  * Mô hình AI (Logistic Regression) học dựa trên 11 chỉ số giao dịch (volume, tần suất, tỷ lệ giao dịch đêm, ví rủi ro...).
+  * Mô hình AI (XGBoost) học dựa trên 10 chỉ số giao dịch.
   * FastAPI tiếp nhận dữ liệu giao dịch mới từ Frontend -> Tính toán lại các chỉ số đặc trưng -> Đẩy vào mô hình `model.pkl` chấm điểm real-time -> Trả kết quả trạng thái về cho Frontend, đồng thời kích hoạt luồng cập nhật dữ liệu lên IPFS và Blockchain.
 
 
