@@ -81,12 +81,23 @@ export default function Home() {
     setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: "WALLET // Session detached by user authorization." }]);
   };
 
-  const handleAuditSearch = async (id: string): Promise<UserRow | null> => {
+  const handleAuditSearch = async (id: string): Promise<{ userId: string; walletAddress: string; riskScore: number; status: "SAFE" | "SUSPICIOUS" } | null> => {
     setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `AUDIT // Contacting registry for node: [${id}]` }]);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/users/${id}`);
+      const res = await fetch(`http://127.0.0.1:8000/api/users/${encodeURIComponent(id)}`);
       if (res.ok) {
-        return await res.json();
+        const data = await res.json();
+        const mappedResult = {
+          userId: data.user_id,
+          walletAddress: data.target_address,
+          riskScore: Math.round(data.risk_score * 100),
+          status: data.classification === "suspicious" ? "SUSPICIOUS" : "SAFE",
+        };
+        setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `AUDIT // Account found: ${mappedResult.userId}, status ${mappedResult.status}.` }]);
+        return mappedResult;
+      }
+      if (res.status === 404) {
+        setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `AUDIT // Registry lookup failed for node: [${id}]` }]);
       }
     } catch (e) {
       setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: "ERR // Registry fetch stream broken." }]);

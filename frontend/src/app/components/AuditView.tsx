@@ -11,19 +11,27 @@ interface UserRow {
 }
 
 interface AuditViewProps {
-  onSearch: (id: string) => UserRow | null;
+  onSearch: (id: string) => Promise<UserRow | null>;
 }
 
 export default function AuditView({ onSearch }: AuditViewProps) {
   const [searchId, setSearchId] = useState("");
   const [searchResult, setSearchResult] = useState<UserRow | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = onSearch(searchId);
+    const trimmedId = searchId.trim();
+    if (!trimmedId) {
+      return;
+    }
+    setIsLoading(true);
+    setHasSearched(false);
+    const result = await onSearch(trimmedId);
     setSearchResult(result);
     setHasSearched(true);
+    setIsLoading(false);
   };
 
   return (
@@ -46,7 +54,11 @@ export default function AuditView({ onSearch }: AuditViewProps) {
           </button>
         </form>
 
-        {searchResult ? (
+        {isLoading ? (
+          <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-500 font-medium">
+            Auditing account, please wait...
+          </div>
+        ) : searchResult ? (
           <div className="mt-6 p-5 bg-slate-50 border border-slate-200 rounded-lg grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="col-span-2">
               <p className="text-xs text-slate-400 mb-1">Target Identity</p>
@@ -63,11 +75,11 @@ export default function AuditView({ onSearch }: AuditViewProps) {
               </span>
             </div>
           </div>
-        ) : (hasSearched && searchId) && (
+        ) : hasSearched && searchId ? (
           <div className="mt-6 p-4 bg-rose-50 border border-rose-100 rounded-lg text-xs text-rose-600 font-mono">
             Identity not found in the pre-evaluated dataset registry.
           </div>
-        )}
+        ) : null}
       </section>
     </div>
   );
