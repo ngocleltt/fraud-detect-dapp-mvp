@@ -1,326 +1,336 @@
 "use client";
 
 import { useState } from "react";
-import { ShieldAlert, Search, Activity, Wallet, AlertTriangle, Terminal, Cpu, PlusCircle, CheckCircle, Users } from "lucide-react";
+import { LayoutDashboard, Search, PlusCircle, Activity } from "lucide-react";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+
+interface UserRow {
+  userId: string;
+  walletAddress: string;
+  totalErc20Txs: number;
+  erc20UniqRecContractAddr: number;
+  erc20UniqRecTokenName: number;
+  erc20UniqRecAddr: number;
+  timeDiffFirstLastMins: number;
+  totalEtherReceived: number;
+  avgMinBetweenReceivedTx: number;
+  avgValReceived: number;
+  totalTransactions: number;
+  uniqueReceivedFromAddrs: number;
+  riskScore: number;
+  status: "SAFE" | "SUSPICIOUS";
+}
 
 export default function Home() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [loadingSearch, setLoadingSearch] = useState(false);
-  const [searchAnalyzed, setSearchAnalyzed] = useState(false);
-  
-  const [formUser, setFormUser] = useState("");
-  const [formNightRatio, setFormNightRatio] = useState("");
-  const [formRiskyRatio, setFormRiskyRatio] = useState("");
-  const [loadingSubmit, setLoadingSubmit] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [currentMenu, setCurrentMenu] = useState("overview");
+  const [searchId, setSearchId] = useState("");
+  const [searchResult, setSearchResult] = useState<UserRow | null>(null);
 
-  const [mockUsers, setMockUsers] = useState([
-    { id: "User_01", wallet: "0x71C...3a9", nightRatio: "0.12", riskyRatio: "0.05", score: "14.20", status: "SAFE" },
-    { id: "User_02", wallet: "0x3F5...2b1", nightRatio: "0.89", riskyRatio: "0.74", score: "87.42", status: "SUSPICIOUS" },
-    { id: "User_03", wallet: "0x9A1...7e4", nightRatio: "0.25", riskyRatio: "0.10", score: "22.15", status: "SAFE" },
-    { id: "User_04", wallet: "0x5B8...9d2", nightRatio: "0.72", riskyRatio: "0.68", score: "79.90", status: "SUSPICIOUS" },
-    { id: "User_05", wallet: "0x2C4...4f8", nightRatio: "0.08", riskyRatio: "0.02", score: "09.50", status: "SAFE" }
+  const [formData, setFormData] = useState({
+    userId: "",
+    walletAddress: "",
+    totalErc20Txs: 0,
+    erc20UniqRecContractAddr: 0,
+    erc20UniqRecTokenName: 0,
+    erc20UniqRecAddr: 0,
+    timeDiffFirstLastMins: 0,
+    totalEtherReceived: 0,
+    avgMinBetweenReceivedTx: 0,
+    avgValReceived: 0,
+    totalTransactions: 0,
+    uniqueReceivedFromAddrs: 0,
+  });
+
+  const [users, setUsers] = useState<UserRow[]>([
+    {
+      userId: "User_01",
+      walletAddress: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+      totalErc20Txs: 45,
+      erc20UniqRecContractAddr: 12,
+      erc20UniqRecTokenName: 8,
+      erc20UniqRecAddr: 15,
+      timeDiffFirstLastMins: 14400,
+      totalEtherReceived: 25.45,
+      avgMinBetweenReceivedTx: 320.5,
+      avgValReceived: 1.25,
+      totalTransactions: 60,
+      uniqueReceivedFromAddrs: 18,
+      riskScore: 12.5,
+      status: "SAFE"
+    },
+    {
+      userId: "User_02",
+      walletAddress: "0x3194c23C31ec41B72dcECB7A7079207e37E74C4B",
+      totalErc20Txs: 850,
+      erc20UniqRecContractAddr: 1,
+      erc20UniqRecTokenName: 1,
+      erc20UniqRecAddr: 1,
+      timeDiffFirstLastMins: 120,
+      totalEtherReceived: 1500.0,
+      avgMinBetweenReceivedTx: 0.45,
+      avgValReceived: 150.0,
+      totalTransactions: 900,
+      uniqueReceivedFromAddrs: 1,
+      riskScore: 94.82,
+      status: "SUSPICIOUS"
+    }
   ]);
 
-  const handleSearchAudit = (e: React.FormEvent) => {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchQuery) return;
-    setLoadingSearch(true);
-    setSearchAnalyzed(false);
-    setTimeout(() => {
-      setLoadingSearch(false);
-      setSearchAnalyzed(true);
-    }, 1200);
+    const found = users.find(u => u.userId.toLowerCase() === searchId.toLowerCase() || u.walletAddress.toLowerCase() === searchId.toLowerCase());
+    setSearchResult(found || null);
   };
 
-  const handleInsertTransaction = (e: React.FormEvent) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === "userId" || name === "walletAddress" ? value : Number(value)
+    }));
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formUser || !formNightRatio || !formRiskyRatio) return;
-    setLoadingSubmit(true);
-    setSubmitSuccess(false);
+    if (!formData.userId || !formData.walletAddress) return;
 
-    setTimeout(() => {
-      const calculatedScore = (parseFloat(formNightRatio) * 50 + parseFloat(formRiskyRatio) * 50).toFixed(2);
-      const determinedStatus = parseFloat(calculatedScore) > 50 ? "SUSPICIOUS" : "SAFE";
+    const calculatedRisk = formData.avgMinBetweenReceivedTx < 5 && formData.avgValReceived > 50 ? 89.5 : 15.4;
+    const determinedStatus = calculatedRisk > 50 ? "SUSPICIOUS" : "SAFE";
 
-      const newUser = {
-        id: formUser,
-        wallet: "0x" + Math.random().toString(16).substring(2, 5).toUpperCase() + "..." + Math.random().toString(16).substring(2, 5).toUpperCase(),
-        nightRatio: parseFloat(formNightRatio).toFixed(2),
-        riskyRatio: parseFloat(formRiskyRatio).toFixed(2),
-        score: calculatedScore,
-        status: determinedStatus
-      };
+    const newUser: UserRow = {
+      ...formData,
+      riskScore: calculatedRisk,
+      status: determinedStatus
+    };
 
-      setMockUsers([newUser, ...mockUsers]);
-      setLoadingSubmit(false);
-      setSubmitSuccess(true);
-      setFormUser("");
-      setFormNightRatio("");
-      setFormRiskyRatio("");
-    }, 1500);
+    setUsers(prev => [newUser, ...prev]);
+    setFormData({
+      userId: "",
+      walletAddress: "",
+      totalErc20Txs: 0,
+      erc20UniqRecContractAddr: 0,
+      erc20UniqRecTokenName: 0,
+      erc20UniqRecAddr: 0,
+      timeDiffFirstLastMins: 0,
+      totalEtherReceived: 0,
+      avgMinBetweenReceivedTx: 0,
+      avgValReceived: 0,
+      totalTransactions: 0,
+      uniqueReceivedFromAddrs: 0,
+    });
+    setCurrentMenu("overview");
   };
 
   return (
-    <main className="flex min-h-screen flex-col bg-slate-950 text-slate-100 font-sans antialiased selection:bg-blue-500 selection:text-white">
-      <header className="border-b border-slate-900 bg-slate-950/50 backdrop-blur sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="bg-blue-500/10 p-2 rounded-lg border border-blue-500/30">
-            <ShieldAlert className="w-6 h-6 text-blue-500 animate-pulse" />
-          </div>
-          <div>
-            <span className="text-lg font-bold tracking-wider text-white">CHAIN<span className="text-blue-500">EYE</span></span>
-            <span className="ml-2 px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-[10px] text-slate-400 font-mono font-bold tracking-widest">MVP v1.0</span>
-          </div>
-        </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 rounded-xl transition duration-200 text-sm font-medium text-slate-200">
-          <Wallet className="w-4 h-4 text-blue-400" />
-          Connect Wallet
-        </button>
-      </header>
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col">
+      <Header />
 
-      <section className="flex-1 max-w-7xl w-full mx-auto px-6 py-12 flex flex-col gap-10">
-        <div className="max-w-3xl flex flex-col gap-3">
-          <div className="flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full w-fit text-blue-400 text-xs font-mono">
-            <Cpu className="w-3.5 h-3.5" />
-            Machine Learning Engine Stacked
-          </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-            Blockchain Behavioral <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">Anomaly Detection</span>
-          </h1>
-          <p className="text-base text-slate-400 leading-relaxed">
-            Analyze address transaction mechanics in real-time. Our custom non-parametric logistic inference engine computes risk orientation matrices across 11 core structural components to isolate malicious entities instantly.
-          </p>
-        </div>
+      <div className="flex flex-1">
+        <aside className="w-64 border-r border-slate-200 p-4 space-y-1 bg-white">
+          <div className="text-[10px] font-bold text-slate-400 tracking-widest px-3 mb-3">NAVIGATION</div>
+          <button
+            onClick={() => setCurrentMenu("overview")}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors ${currentMenu === "overview" ? "bg-blue-50 text-blue-600 border border-blue-100" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}
+          >
+            <LayoutDashboard className="w-4 h-4" />
+            Dashboard Overview
+          </button>
+          <button
+            onClick={() => setCurrentMenu("audit")}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors ${currentMenu === "audit" ? "bg-blue-50 text-blue-600 border border-blue-100" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}
+          >
+            <Search className="w-4 h-4" />
+            Account Audit
+          </button>
+          <button
+            onClick={() => setCurrentMenu("simulate")}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors ${currentMenu === "simulate" ? "bg-blue-50 text-blue-600 border border-blue-100" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}
+          >
+            <PlusCircle className="w-4 h-4" />
+            Simulate Transaction
+          </button>
+        </aside>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-6 backdrop-blur-sm">
-              <h2 className="text-sm font-semibold tracking-wide text-slate-200 mb-4 flex items-center gap-2">
-                <Search className="w-4 h-4 text-blue-500" /> Advanced Forensic Query (Feature 1)
-              </h2>
-              <form onSubmit={handleSearchAudit} className="flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1">
-                  <Search className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
-                  <input
-                    type="text"
-                    placeholder="Enter target username or ID (e.g., User_02)"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-xl pl-12 pr-4 py-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition font-mono tracking-wide"
-                  />
+        <main className="flex-1 p-6 overflow-hidden">
+          {currentMenu === "overview" && (
+            <div className="space-y-6 animate-fadeIn">
+              <section className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm overflow-hidden">
+                <div className="flex items-center gap-2 mb-4">
+                  <Activity className="text-blue-600 w-5 h-5" />
+                  <h2 className="text-sm font-bold tracking-wider text-slate-700">PRE-EVALUATED CONTRACT DATASET (BATCH MODE)</h2>
                 </div>
-                <button
-                  type="submit"
-                  disabled={loadingSearch}
-                  className="px-6 py-3.5 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white font-medium text-sm rounded-xl shadow-lg shadow-blue-950/20 transition duration-150 flex items-center justify-center gap-2 min-w-[140px]"
-                >
-                  {loadingSearch ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Analyzing
-                    </>
-                  ) : (
-                    "Run Security Audit"
-                  )}
-                </button>
-              </form>
-            </div>
-
-            <div className="bg-slate-900/20 border border-slate-900 rounded-2xl p-6 flex flex-col gap-4">
-              <div className="flex items-center justify-between border-b border-slate-900 pb-3">
-                <span className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-                  <Users className="w-4 h-4 text-blue-500" /> System Dataset Ledger Overview (Feature 2)
-                </span>
-                <span className="text-xs font-mono text-slate-500">Batch Prediction Mode Active</span>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs font-mono">
-                  <thead>
-                    <tr className="border-b border-slate-900 text-slate-400">
-                      <th className="py-3 px-4 font-semibold">User ID</th>
-                      <th className="py-3 px-4 font-semibold">Target Address</th>
-                      <th className="py-3 px-4 font-semibold text-center">Night Activity</th>
-                      <th className="py-3 px-4 font-semibold text-center">Risky Interact</th>
-                      <th className="py-3 px-4 font-semibold text-right">Risk Score</th>
-                      <th className="py-3 px-4 font-semibold text-center">Classification</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-900/50">
-                    {mockUsers.map((user) => (
-                      <tr key={user.id} className="hover:bg-slate-900/30 transition duration-150">
-                        <td className="py-3.5 px-4 text-slate-200 font-bold">{user.id}</td>
-                        <td className="py-3.5 px-4 text-slate-500">{user.wallet}</td>
-                        <td className="py-3.5 px-4 text-center text-slate-400">{user.nightRatio}</td>
-                        <td className="py-3.5 px-4 text-center text-slate-400">{user.riskyRatio}</td>
-                        <td className="py-3.5 px-4 text-right font-bold text-blue-400">{user.score}</td>
-                        <td className="py-3.5 px-4 text-center">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            user.status === "SUSPICIOUS" 
-                              ? "bg-red-500/10 border border-red-500/20 text-red-400" 
-                              : "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-                          }`}>
-                            {user.status}
-                          </span>
-                        </td>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-200 text-slate-500 font-semibold bg-slate-50">
+                        <th className="p-3">User ID</th>
+                        <th className="p-3">Total ERC20 Tx</th>
+                        <th className="p-3">Uniq Contract</th>
+                        <th className="p-3">Uniq Token</th>
+                        <th className="p-3">Uniq RecAddr</th>
+                        <th className="p-3">Time Diff (Mins)</th>
+                        <th className="p-3">Total ETH Rec</th>
+                        <th className="p-3">Avg Min Rec</th>
+                        <th className="p-3">Avg Val Rec</th>
+                        <th className="p-3">Total Txs</th>
+                        <th className="p-3">Uniq From</th>
+                        <th className="p-3 text-right">Risk Score</th>
+                        <th className="p-3 text-center">Status</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {users.map((user, idx) => (
+                        <tr key={idx} className="hover:bg-slate-50/80 transition-colors font-mono text-slate-600">
+                          <td className="p-3 text-blue-600 font-sans font-semibold">{user.userId}</td>
+                          <td className="p-3">{user.totalErc20Txs}</td>
+                          <td className="p-3">{user.erc20UniqRecContractAddr}</td>
+                          <td className="p-3">{user.erc20UniqRecTokenName}</td>
+                          <td className="p-3">{user.erc20UniqRecAddr}</td>
+                          <td className="p-3">{user.timeDiffFirstLastMins}</td>
+                          <td className="p-3">{user.totalEtherReceived}</td>
+                          <td className="p-3">{user.avgMinBetweenReceivedTx}</td>
+                          <td className="p-3">{user.avgValReceived}</td>
+                          <td className="p-3">{user.totalTransactions}</td>
+                          <td className="p-3">{user.uniqueReceivedFromAddrs}</td>
+                          <td className={`p-3 text-right font-bold ${user.status === "SUSPICIOUS" ? "text-rose-600" : "text-emerald-600"}`}>{user.riskScore}%</td>
+                          <td className="p-3 text-center">
+                            <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded ${user.status === "SUSPICIOUS" ? "bg-rose-50 text-rose-600 border border-rose-200" : "bg-emerald-50 text-emerald-600 border border-emerald-200"}`}>
+                              {user.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
             </div>
-          </div>
+          )}
 
-          <div className="flex flex-col gap-6">
-            <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-6 backdrop-blur-sm">
-              <h2 className="text-sm font-semibold tracking-wide text-slate-200 mb-4 flex items-center gap-2">
-                <PlusCircle className="w-4 h-4 text-blue-500" /> Simulate Real-time Transaction
-              </h2>
-              <form onSubmit={handleInsertTransaction} className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-mono uppercase tracking-widest text-slate-500">Target User ID</label>
+          {currentMenu === "audit" && (
+            <div className="space-y-6 animate-fadeIn max-w-4xl">
+              <section className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <Search className="text-blue-600 w-5 h-5" />
+                  <h2 className="text-sm font-bold tracking-wider text-slate-700">INDIVIDUAL ACCOUNT AUDIT</h2>
+                </div>
+                <form onSubmit={handleSearch} className="flex gap-3">
                   <input
                     type="text"
-                    required
-                    placeholder="e.g., User_06"
-                    value={formUser}
-                    onChange={(e) => setFormUser(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none transition font-mono"
+                    placeholder="Enter User ID or Wallet Address (e.g., User_01)..."
+                    value={searchId}
+                    onChange={(e) => setSearchId(e.target.value)}
+                    className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500 text-slate-700 transition-colors"
                   />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-mono uppercase tracking-widest text-slate-500">Night Activity Ratio (0.0 - 1.0)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max="1"
-                    required
-                    placeholder="e.g., 0.85"
-                    value={formNightRatio}
-                    onChange={(e) => setFormNightRatio(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none transition font-mono"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-mono uppercase tracking-widest text-slate-500">Risky Counterparty Ratio (0.0 - 1.0)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max="1"
-                    required
-                    placeholder="e.g., 0.70"
-                    value={formRiskyRatio}
-                    onChange={(e) => setFormRiskyRatio(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none transition font-mono"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={loadingSubmit}
-                  className="w-full mt-2 px-4 py-3 bg-slate-100 hover:bg-white text-slate-950 disabled:bg-slate-800 disabled:text-slate-500 font-bold text-xs uppercase tracking-wider rounded-xl transition duration-150 flex items-center justify-center gap-2"
-                >
-                  {loadingSubmit ? "Processing Matrix..." : "Push Transaction to IPFS"}
-                </button>
-                {submitSuccess && (
-                  <div className="flex items-center gap-2 text-emerald-400 font-mono text-[11px] mt-1 bg-emerald-950/10 border border-emerald-500/20 p-2.5 rounded-lg animate-in fade-in duration-200">
-                    <CheckCircle className="w-4 h-4 shrink-0" />
-                    <span>Inference complete. Ledger sync'd with Smart Contract Registry CID.</span>
+                  <button type="submit" className="bg-slate-800 hover:bg-slate-700 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-colors">
+                    Audit
+                  </button>
+                </form>
+
+                {searchResult ? (
+                  <div className="mt-6 p-5 bg-slate-50 border border-slate-200 rounded-lg grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div className="col-span-2">
+                      <p className="text-xs text-slate-400 mb-1">Target Identity</p>
+                      <p className="text-sm font-mono text-blue-600 truncate font-semibold">{searchResult.userId} ({searchResult.walletAddress})</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-400 mb-1">AI Risk Score</p>
+                      <p className={`text-sm font-bold ${searchResult.status === "SUSPICIOUS" ? "text-rose-600" : "text-emerald-600"}`}>{searchResult.riskScore}%</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-400 mb-1">Security Status</p>
+                      <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded mt-1 ${searchResult.status === "SUSPICIOUS" ? "bg-rose-50 text-rose-600 border border-rose-200" : "bg-emerald-50 text-emerald-600 border border-emerald-200"}`}>
+                        {searchResult.status}
+                      </span>
+                    </div>
+                  </div>
+                ) : searchId && (
+                  <div className="mt-6 p-4 bg-rose-50 border border-rose-100 rounded-lg text-xs text-rose-600 font-mono">
+                    Identity not found in the pre-evaluated dataset registry.
                   </div>
                 )}
-              </form>
+              </section>
             </div>
-          </div>
-        </div>
+          )}
 
-        {searchAnalyzed && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 anonymity-trace animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <div className="bg-slate-900/20 border border-red-500/20 rounded-2xl p-6 flex flex-col gap-6 relative overflow-hidden bg-gradient-to-b from-red-950/5 to-transparent">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold tracking-wide text-slate-400">Risk Assessment</span>
-                <span className="px-2.5 py-1 bg-red-500/10 border border-red-500/30 rounded-full text-red-400 text-xs font-mono font-bold flex items-center gap-1.5">
-                  <AlertTriangle className="w-3.5 h-3.5" /> High Risk
-                </span>
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-6xl font-black tracking-tight text-red-500 font-mono">87.42</span>
-                <span className="text-slate-500 font-mono text-sm">/ 100</span>
-              </div>
-              <div className="border-t border-slate-900 pt-4 flex flex-col gap-2">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest font-mono">Classification Status</span>
-                <span className="text-lg font-bold text-red-400">Suspicious Entity Detected</span>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Entity metrics diverge significantly from nominal profiles. Multi-vector tracking triggers high correlation with laundering nodes.
-                </p>
-              </div>
+          {currentMenu === "simulate" && (
+            <div className="animate-fadeIn max-w-2xl">
+              <section className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <PlusCircle className="text-blue-600 w-5 h-5" />
+                  <h2 className="text-sm font-bold tracking-wider text-slate-700">SIMULATE REAL-TIME TRANSACTION</h2>
+                </div>
+                <form onSubmit={handleFormSubmit} className="space-y-4 text-xs">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-slate-500 mb-1 font-medium">User ID</label>
+                      <input type="text" name="userId" value={formData.userId} onChange={handleInputChange} placeholder="e.g., User_03" className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+                    </div>
+                    <div>
+                      <label className="block text-slate-500 mb-1 font-medium">Wallet Address</label>
+                      <input type="text" name="walletAddress" value={formData.walletAddress} onChange={handleInputChange} placeholder="0x..." className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-slate-500 mb-1 font-medium">Total ERC20 Transactions</label>
+                    <input type="number" name="totalErc20Txs" value={formData.totalErc20Txs} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-slate-500 mb-1 font-medium">Uniq Contract</label>
+                      <input type="number" name="erc20UniqRecContractAddr" value={formData.erc20UniqRecContractAddr} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+                    </div>
+                    <div>
+                      <label className="block text-slate-500 mb-1 font-medium">Uniq Token</label>
+                      <input type="number" name="erc20UniqRecTokenName" value={formData.erc20UniqRecTokenName} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+                    </div>
+                    <div>
+                      <label className="block text-slate-500 mb-1 font-medium">Uniq RecAddr</label>
+                      <input type="number" name="erc20UniqRecAddr" value={formData.erc20UniqRecAddr} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-slate-500 mb-1 font-medium">Time Diff (Mins)</label>
+                      <input type="number" name="timeDiffFirstLastMins" value={formData.timeDiffFirstLastMins} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+                    </div>
+                    <div>
+                      <label className="block text-slate-500 mb-1 font-medium">Total Ether Received</label>
+                      <input type="number" step="any" name="totalEtherReceived" value={formData.totalEtherReceived} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-slate-500 mb-1 font-medium">Avg Min Between Rec</label>
+                      <input type="number" step="any" name="avgMinBetweenReceivedTx" value={formData.avgMinBetweenReceivedTx} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+                    </div>
+                    <div>
+                      <label className="block text-slate-500 mb-1 font-medium">Avg Val Received (ETH)</label>
+                      <input type="number" step="any" name="avgValReceived" value={formData.avgValReceived} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-slate-500 mb-1 font-medium">Total Transactions</label>
+                      <input type="number" name="totalTransactions" value={formData.totalTransactions} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+                    </div>
+                    <div>
+                      <label className="block text-slate-500 mb-1 font-medium">Unique From Addrs</label>
+                      <input type="number" name="uniqueReceivedFromAddrs" value={formData.uniqueReceivedFromAddrs} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+                    </div>
+                  </div>
+                  <button type="submit" className="w-full mt-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-2.5 rounded text-sm transition-all shadow-md shadow-blue-500/10">
+                    Push Transaction Flow
+                  </button>
+                </form>
+              </section>
             </div>
+          )}
+        </main>
+      </div>
 
-            <div className="lg:col-span-2 bg-slate-900/20 border border-slate-900 rounded-2xl p-6 flex flex-col gap-4">
-              <div className="flex items-center justify-between border-b border-slate-900 pb-3">
-                <span className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-blue-500" /> Vector Feature Verification Matrix
-                </span>
-                <span className="text-xs font-mono text-slate-500">11 Targets Active</span>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs font-mono">
-                <div className="p-3 bg-slate-950/60 border border-slate-900 rounded-xl flex items-center justify-between">
-                  <span className="text-slate-400">1. total_received</span>
-                  <span className="text-blue-400 font-bold">1,420.50 ETH</span>
-                </div>
-                <div className="p-3 bg-slate-950/60 border border-slate-900 rounded-xl flex items-center justify-between">
-                  <span className="text-slate-400">2. total_sent</span>
-                  <span className="text-blue-400 font-bold">1,419.12 ETH</span>
-                </div>
-                <div className="p-3 bg-slate-950/60 border border-slate-900 rounded-xl flex items-center justify-between">
-                  <span className="text-slate-400">3. num_transactions</span>
-                  <span className="text-blue-400 font-bold">8,412 TXs</span>
-                </div>
-                <div className="p-3 bg-slate-950/60 border border-slate-900 rounded-xl flex items-center justify-between">
-                  <span className="text-slate-400">4. avg_transaction_value</span>
-                  <span className="text-slate-400">0.168 ETH</span>
-                </div>
-                <div className="p-3 bg-slate-950/60 border border-slate-900 rounded-xl flex items-center justify-between">
-                  <span className="text-slate-400">5. max_transaction_value</span>
-                  <span className="text-slate-400">45.00 ETH</span>
-                </div>
-                <div className="p-3 bg-slate-950/60 border border-slate-900 rounded-xl flex items-center justify-between">
-                  <span className="text-slate-400">6. transaction_frequency</span>
-                  <span className="text-red-400 font-bold">142.1 / hr</span>
-                </div>
-                <div className="p-3 bg-slate-950/60 border border-slate-900 rounded-xl flex items-center justify-between">
-                  <span className="text-slate-400">7. unique_counterparties</span>
-                  <span className="text-slate-400">341 nodes</span>
-                </div>
-                <div className="p-3 bg-slate-950/60 border border-slate-900 rounded-xl flex items-center justify-between">
-                  <span className="text-slate-400">8. account_age_days</span>
-                  <span className="text-slate-400">14 days</span>
-                </div>
-                <div className="p-3 bg-slate-950/60 border border-slate-900 rounded-xl flex items-center justify-between">
-                  <span className="text-slate-400">9. in_out_ratio</span>
-                  <span className="text-slate-400">0.999</span>
-                </div>
-                <div className="p-3 bg-slate-950/60 border border-red-500/20 rounded-xl flex items-center justify-between bg-red-950/5">
-                  <span className="text-red-400">10. night_activity_ratio</span>
-                  <span className="text-red-400 font-bold">0.892</span>
-                </div>
-                <div className="p-3 bg-slate-950/60 border border-red-500/20 rounded-xl flex items-center justify-between col-span-1 md:col-span-2 bg-red-950/5">
-                  <span className="text-red-400">11. known_risky_counterparty_ratio</span>
-                  <span className="text-red-400 font-bold">0.745</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
-
-      <footer className="border-t border-slate-900 py-6 px-6 bg-slate-950/20 text-center text-xs text-slate-600 font-mono mt-auto flex flex-col sm:flex-row items-center justify-between gap-4 max-w-7xl w-full mx-auto">
-        <div className="flex items-center gap-2">
-          <Terminal className="w-3.5 h-3.5 text-blue-500" />
-          <span>Decentralized Forensic Model Environment</span>
-        </div>
-        <span>Security Analysis Framework MVP</span>
-      </footer>
-    </main>
+      <Footer />
+    </div>
   );
 }
