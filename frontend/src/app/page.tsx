@@ -54,21 +54,21 @@ export default function Home() {
     return new Date().toLocaleTimeString();
   };
 
-  const fetchUsersFromBackend = async () => {
-    try {
-      const res = await fetch("http://127.0.0.1:8000/api/users");
-      if (res.ok) {
-        const data = await res.json();
-        setUsers(data.users || []);
-        setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `REST // Fetched ${data.users?.length || 0} wallet records from server storage.` }]);
-      }
-    } catch (err) {
-      setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: "ERR // Backend node connection timeout." }]);
-    }
-  };
-
   useEffect(() => {
-    fetchUsersFromBackend();
+    const loadUsers = async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/users");
+        if (res.ok) {
+          const data = await res.json();
+          setUsers(data.users || []);
+          setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `REST // Fetched ${data.users?.length || 0} wallet records from server storage.` }]);
+        }
+      } catch (error) {
+        setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: "ERR // Backend node connection timeout." }]);
+        console.error(error);
+      }
+    };
+    loadUsers();
   }, []);
 
   const handleConnectWallet = () => {
@@ -99,13 +99,30 @@ export default function Home() {
       if (res.status === 404) {
         setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `AUDIT // Registry lookup failed for node: [${id}]` }]);
       }
-    } catch (e) {
+    } catch (error) {
       setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: "ERR // Registry fetch stream broken." }]);
+      console.error(error);
     }
     return null;
   };
 
-  const handleSimulateSubmit = async (rawFormData: any) => {
+  interface SimulateFormData {
+    user_id: string;
+    target_address: string;
+    total_received: number;
+    total_sent: number;
+    num_transactions: number;
+    avg_transaction_value: number;
+    max_transaction_value: number;
+    transaction_frequency: number;
+    unique_counterparties: number;
+    account_age_days: number;
+    in_out_ratio: number;
+    night_activity_ratio: number;
+    known_risky_counterparty_ratio: number;
+  }
+
+  const handleSimulateSubmit = async (rawFormData: SimulateFormData) => {
     const apiPayload = {
       user_id: rawFormData.user_id,
       target_address: rawFormData.target_address,
@@ -135,9 +152,12 @@ export default function Home() {
         setUsers(prev => [freshUser, ...prev]);
         setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `SIM // Network entry approved. Label: ${freshUser.classification.toUpperCase()}` }]);
         setCurrentMenu("overview");
+        return;
       }
-    } catch (err) {
+      setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `ERR // Simulation failed with status ${res.status}.` }]);
+    } catch (error) {
       setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: "ERR // Simulation transmission collapsed." }]);
+      console.error(error);
     }
   };
 

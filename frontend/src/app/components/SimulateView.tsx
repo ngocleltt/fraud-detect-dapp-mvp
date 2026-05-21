@@ -3,37 +3,55 @@
 import { useState } from "react";
 import { PlusCircle } from "lucide-react";
 
+export interface SimulateFormData {
+  user_id: string;
+  target_address: string;
+  total_received: number;
+  total_sent: number;
+  num_transactions: number;
+  avg_transaction_value: number;
+  max_transaction_value: number;
+  transaction_frequency: number;
+  unique_counterparties: number;
+  account_age_days: number;
+  in_out_ratio: number;
+  night_activity_ratio: number;
+  known_risky_counterparty_ratio: number;
+}
+
 interface SimulateViewProps {
-  onSimulate: (data: any) => void;
+  onSimulate: (data: SimulateFormData) => void;
 }
 
 export default function SimulateView({ onSimulate }: SimulateViewProps) {
-  const [formData, setFormData] = useState({
-    userId: "",
-    walletAddress: "",
-    totalErc20Txs: 0,
-    erc20UniqRecContractAddr: 0,
-    erc20UniqRecTokenName: 0,
-    erc20UniqRecAddr: 0,
-    timeDiffFirstLastMins: 0,
-    totalEtherReceived: 0,
-    avgMinBetweenReceivedTx: 0,
-    avgValReceived: 0,
-    totalTransactions: 0,
-    uniqueReceivedFromAddrs: 0,
+  const [formData, setFormData] = useState<SimulateFormData>({
+    user_id: "",
+    target_address: "",
+    total_received: 0,
+    total_sent: 0,
+    num_transactions: 0,
+    avg_transaction_value: 0,
+    max_transaction_value: 0,
+    transaction_frequency: 0,
+    unique_counterparties: 0,
+    account_age_days: 0,
+    in_out_ratio: 0,
+    night_activity_ratio: 0,
+    known_risky_counterparty_ratio: 0,
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    const key = name as keyof SimulateFormData;
     setFormData(prev => ({
       ...prev,
-      [name]: name === "userId" || name === "walletAddress" ? value : Number(value)
+      [key]: key === "user_id" || key === "target_address" ? value : Number(value)
     }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.userId || !formData.walletAddress) return;
+    if (!formData.user_id || !formData.target_address) return;
     onSimulate(formData);
   };
 
@@ -48,60 +66,66 @@ export default function SimulateView({ onSimulate }: SimulateViewProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-slate-500 mb-1 font-medium">User ID</label>
-              <input type="text" name="userId" value={formData.userId} onChange={handleInputChange} placeholder="e.g., User_03" className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+              <input type="text" name="user_id" value={formData.user_id} onChange={handleInputChange} placeholder="e.g., USR-0051" className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
             </div>
             <div>
               <label className="block text-slate-500 mb-1 font-medium">Wallet Address</label>
-              <input type="text" name="walletAddress" value={formData.walletAddress} onChange={handleInputChange} placeholder="0x..." className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+              <input type="text" name="target_address" value={formData.target_address} onChange={handleInputChange} placeholder="0x..." className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-slate-500 mb-1 font-medium">Total Received</label>
+              <input type="number" step="any" name="total_received" value={formData.total_received} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+            </div>
+            <div>
+              <label className="block text-slate-500 mb-1 font-medium">Total Sent</label>
+              <input type="number" step="any" name="total_sent" value={formData.total_sent} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-slate-500 mb-1 font-medium">Transaction Count</label>
+              <input type="number" name="num_transactions" value={formData.num_transactions} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+            </div>
+            <div>
+              <label className="block text-slate-500 mb-1 font-medium">Avg Transaction Value</label>
+              <input type="number" step="any" name="avg_transaction_value" value={formData.avg_transaction_value} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-slate-500 mb-1 font-medium">Max Transaction Value</label>
+              <input type="number" step="any" name="max_transaction_value" value={formData.max_transaction_value} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+            </div>
+            <div>
+              <label className="block text-slate-500 mb-1 font-medium">Transaction Frequency</label>
+              <input type="number" step="any" name="transaction_frequency" value={formData.transaction_frequency} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-slate-500 mb-1 font-medium">Unique Counterparties</label>
+              <input type="number" name="unique_counterparties" value={formData.unique_counterparties} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+            </div>
+            <div>
+              <label className="block text-slate-500 mb-1 font-medium">Account Age (Days)</label>
+              <input type="number" name="account_age_days" value={formData.account_age_days} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-slate-500 mb-1 font-medium">In/Out Ratio</label>
+              <input type="number" step="any" name="in_out_ratio" value={formData.in_out_ratio} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+            </div>
+            <div>
+              <label className="block text-slate-500 mb-1 font-medium">Night Activity Ratio</label>
+              <input type="number" step="any" name="night_activity_ratio" value={formData.night_activity_ratio} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
             </div>
           </div>
           <div>
-            <label className="block text-slate-500 mb-1 font-medium">Total ERC20 Transactions</label>
-            <input type="number" name="totalErc20Txs" value={formData.totalErc20Txs} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="block text-slate-500 mb-1 font-medium">Uniq Contract</label>
-              <input type="number" name="erc20UniqRecContractAddr" value={formData.erc20UniqRecContractAddr} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
-            </div>
-            <div>
-              <label className="block text-slate-500 mb-1 font-medium">Uniq Token</label>
-              <input type="number" name="erc20UniqRecTokenName" value={formData.erc20UniqRecTokenName} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
-            </div>
-            <div>
-              <label className="block text-slate-500 mb-1 font-medium">Uniq RecAddr</label>
-              <input type="number" name="erc20UniqRecAddr" value={formData.erc20UniqRecAddr} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-slate-500 mb-1 font-medium">Time Diff (Mins)</label>
-              <input type="number" name="timeDiffFirstLastMins" value={formData.timeDiffFirstLastMins} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
-            </div>
-            <div>
-              <label className="block text-slate-500 mb-1 font-medium">Total Ether Received</label>
-              <input type="number" step="any" name="totalEtherReceived" value={formData.totalEtherReceived} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-slate-500 mb-1 font-medium">Avg Min Between Rec</label>
-              <input type="number" step="any" name="avgMinBetweenReceivedTx" value={formData.avgMinBetweenReceivedTx} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
-            </div>
-            <div>
-              <label className="block text-slate-500 mb-1 font-medium">Avg Val Received (ETH)</label>
-              <input type="number" step="any" name="avgValReceived" value={formData.avgValReceived} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-slate-500 mb-1 font-medium">Total Transactions</label>
-              <input type="number" name="totalTransactions" value={formData.totalTransactions} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
-            </div>
-            <div>
-              <label className="block text-slate-500 mb-1 font-medium">Unique From Addrs</label>
-              <input type="number" name="uniqueReceivedFromAddrs" value={formData.uniqueReceivedFromAddrs} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
-            </div>
+            <label className="block text-slate-500 mb-1 font-medium">Known Risky Counterparty Ratio</label>
+            <input type="number" step="any" name="known_risky_counterparty_ratio" value={formData.known_risky_counterparty_ratio} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
           </div>
           <button type="submit" className="w-full mt-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-2.5 rounded text-sm transition-all shadow-md shadow-blue-500/10">
             Push Transaction Flow
