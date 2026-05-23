@@ -1,8 +1,12 @@
 import os
 import json
+import requests
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI(title="ChainEye Forensics Backend")
 
@@ -16,6 +20,7 @@ app.add_middleware(
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATASET_PATH = os.path.join(BASE_DIR, "dataset.json")
+PINATA_JWT = os.getenv("PINATA_JWT")
 
 class UserFeaturesInput(BaseModel):
     total_erc20_tnxs: int
@@ -44,6 +49,30 @@ def save_dataset(data):
     with open(DATASET_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
+def upload_to_ipfs(json_data: dict):
+    if not PINATA_JWT:
+        return None
+        
+    url = "https://api.pinata.cloud/pinning/pinJSONToIPFS"
+    headers = {
+        "Authorization": f"Bearer {PINATA_JWT}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "pinataOptions": {"cidVersion": 1},
+        "pinataMetadata": {
+            "name": f"AuditRecord_{json_data.get('target_address', 'Unknown')}.json"
+        },
+        "pinataContent": json_data
+    }
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        if response.status_code == 200:
+            return response.json()["IpfsHash"]
+        return None
+    except:
+        return None
+
 def calculate_risk_score(features: UserFeaturesInput) -> float:
     score = 0.0
     if features.total_erc20_tnxs > 1000:
@@ -65,8 +94,6 @@ def calculate_risk_score(features: UserFeaturesInput) -> float:
     if features.avg_val_received < 0.00001:
         score += 0.15
     return min(score, 1.0)
-
-
 
 @app.get("/api/users")
 def get_all_users():
@@ -105,6 +132,11 @@ def simulate_transaction(payload: SimulateRequest):
             "Unique Received From Addresses": payload.features.unique_received_from_addresses
         }
     }
+    
+    cid = upload_to_ipfs(new_user)
+    if cid:
+        new_user["ipfs_cid"] = cid
+
     data["users"].insert(0, new_user)
     if "metadata" in data and "total_records" in data["metadata"]:
         data["metadata"]["total_records"] = len(data["users"])

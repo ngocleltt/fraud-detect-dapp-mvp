@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "created_at": "2026-05-23T00:00:00Z",
     "description": "Blockchain Fraud Detection Dataset - 50 User Records (Converted to 10 ERC20 features)",
-    "total_records": 50,
+    "total_records": 53,
     "features": [
       "Total ERC20 tnxs",
       "ERC20 uniq rec contract addr",
