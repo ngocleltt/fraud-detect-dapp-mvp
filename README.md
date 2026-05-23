@@ -21,7 +21,7 @@ DApp phát hiện ví gian lận sử dụng mô hình lưu trữ lai (Hybrid St
     
 * **Core Logic Layer (AI + API):**
   * Mô hình AI (XGBoost) học dựa trên 10 chỉ số giao dịch.
-  * FastAPI tiếp nhận dữ liệu giao dịch mới từ Frontend -> Tính toán lại các chỉ số đặc trưng -> Đẩy vào mô hình `model.pkl` chấm điểm real-time -> Trả kết quả trạng thái về cho Frontend, đồng thời kích hoạt luồng cập nhật dữ liệu lên IPFS và Blockchain.
+  * FastAPI tiếp nhận dữ liệu giao dịch mới từ Frontend -> Tính toán lại các chỉ số đặc trưng -> Đẩy vào mô hình `fraud_model.pkl` chấm điểm real-time -> Trả kết quả trạng thái về cho Frontend, đồng thời kích hoạt luồng cập nhật dữ liệu lên IPFS và Blockchain.
 
 
 ---
