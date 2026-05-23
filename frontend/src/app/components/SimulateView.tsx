@@ -77,13 +77,13 @@ export default function SimulateView({ onSimulate }: SimulateViewProps) {
               <input type="number" name="total_erc20_tnxs" value={formData.total_erc20_tnxs} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
             </div>
             <div>
-              <label className="block text-slate-500 mb-1 font-medium">Uniq Rec Contract Addr</label>
+              <label className="block text-slate-500 mb-1 font-medium">Uniq Contract</label>
               <input type="number" name="erc20_uniq_rec_contract_addr" value={formData.erc20_uniq_rec_contract_addr} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-slate-500 mb-1 font-medium">Uniq Rec Token Name</label>
+              <label className="block text-slate-500 mb-1 font-medium">Uniq Token</label>
               <input type="number" name="erc20_uniq_rec_token_name" value={formData.erc20_uniq_rec_token_name} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
             </div>
             <div>
@@ -97,17 +97,17 @@ export default function SimulateView({ onSimulate }: SimulateViewProps) {
               <input type="number" name="time_diff_mins" value={formData.time_diff_mins} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
             </div>
             <div>
-              <label className="block text-slate-500 mb-1 font-medium">Total Ether Received</label>
+              <label className="block text-slate-500 mb-1 font-medium">ETH Received</label>
               <input type="number" step="any" name="total_ether_received" value={formData.total_ether_received} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-slate-500 mb-1 font-medium">Avg Min Between Rec</label>
+              <label className="block text-slate-500 mb-1 font-medium">Avg Min / Rec</label>
               <input type="number" step="any" name="avg_min_between_rec" value={formData.avg_min_between_rec} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
             </div>
             <div>
-              <label className="block text-slate-500 mb-1 font-medium">Avg Val Received (ETH)</label>
+              <label className="block text-slate-500 mb-1 font-medium">Avg Val (ETH)</label>
               <input type="number" step="any" name="avg_val_received" value={formData.avg_val_received} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
             </div>
           </div>
@@ -117,7 +117,7 @@ export default function SimulateView({ onSimulate }: SimulateViewProps) {
               <input type="number" name="total_transactions_incl_create" value={formData.total_transactions_incl_create} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
             </div>
             <div>
-              <label className="block text-slate-500 mb-1 font-medium">Uniq Received From Addrs</label>
+              <label className="block text-slate-500 mb-1 font-medium">Uniq From Addrs</label>
               <input type="number" name="unique_received_from_addresses" value={formData.unique_received_from_addresses} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
             </div>
           </div>

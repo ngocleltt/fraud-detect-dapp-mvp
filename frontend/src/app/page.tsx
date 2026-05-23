@@ -118,16 +118,16 @@ export default function Home() {
       user_id: rawFormData.user_id,
       target_address: rawFormData.target_address,
       features: {
-        "Total ERC20 tnxs": rawFormData.total_erc20_tnxs,
-        "ERC20 uniq rec contract addr": rawFormData.erc20_uniq_rec_contract_addr,
-        "ERC20 uniq rec token name": rawFormData.erc20_uniq_rec_token_name,
-        "ERC20 uniq rec addr": rawFormData.erc20_uniq_rec_addr,
-        "Time Diff between first and last (Mins)": rawFormData.time_diff_mins,
-        "total ether received": rawFormData.total_ether_received,
-        "Avg min between received tnx": rawFormData.avg_min_between_rec,
-        "avg val received": rawFormData.avg_val_received,
-        "total transactions (including tnx to create contract)": rawFormData.total_transactions_incl_create,
-        "Unique Received From Addresses": rawFormData.unique_received_from_addresses
+        total_erc20_tnxs: rawFormData.total_erc20_tnxs,
+        erc20_uniq_rec_contract_addr: rawFormData.erc20_uniq_rec_contract_addr,
+        erc20_uniq_rec_token_name: rawFormData.erc20_uniq_rec_token_name,
+        erc20_uniq_rec_addr: rawFormData.erc20_uniq_rec_addr,
+        time_diff_mins: rawFormData.time_diff_mins,
+        total_ether_received: rawFormData.total_ether_received,
+        avg_min_between_rec: rawFormData.avg_min_between_rec,
+        avg_val_received: rawFormData.avg_val_received,
+        total_transactions_incl_create: rawFormData.total_transactions_incl_create,
+        unique_received_from_addresses: rawFormData.unique_received_from_addresses
       }
     };
 

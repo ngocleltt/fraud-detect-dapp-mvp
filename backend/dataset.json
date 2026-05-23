@@ -16,7 +16,10 @@
       "total transactions (including tnx to create contract)",
       "Unique Received From Addresses"
     ],
-    "classifications": ["safe", "suspicious"]
+    "classifications": [
+      "safe",
+      "suspicious"
+    ]
   },
   "users": [
     {
@@ -50,7 +53,7 @@
         "Time Diff between first and last (Mins)": 2880,
         "total ether received": 0.023,
         "Avg min between received tnx": 0.85,
-        "avg val received": 0.0000094,
+        "avg val received": 9.4e-06,
         "total transactions (including tnx to create contract)": 2580,
         "Unique Received From Addresses": 1980
       }
@@ -86,7 +89,7 @@
         "Time Diff between first and last (Mins)": 1440,
         "total ether received": 0.0089,
         "Avg min between received tnx": 0.62,
-        "avg val received": 0.0000048,
+        "avg val received": 4.8e-06,
         "total transactions (including tnx to create contract)": 1950,
         "Unique Received From Addresses": 1520
       }
@@ -140,7 +143,7 @@
         "Time Diff between first and last (Mins)": 720,
         "total ether received": 0.0021,
         "Avg min between received tnx": 0.15,
-        "avg val received": 0.00000065,
+        "avg val received": 6.5e-07,
         "total transactions (including tnx to create contract)": 3350,
         "Unique Received From Addresses": 2750
       }
@@ -158,7 +161,7 @@
         "Time Diff between first and last (Mins)": 612000,
         "total ether received": 3.4,
         "Avg min between received tnx": 890.2,
-        "avg val received": 0.0630,
+        "avg val received": 0.063,
         "total transactions (including tnx to create contract)": 68,
         "Unique Received From Addresses": 22
       }
@@ -176,7 +179,7 @@
         "Time Diff between first and last (Mins)": 3600,
         "total ether received": 0.045,
         "Avg min between received tnx": 1.2,
-        "avg val received": 0.000033,
+        "avg val received": 3.3e-05,
         "total transactions (including tnx to create contract)": 1420,
         "Unique Received From Addresses": 1080
       }
@@ -230,7 +233,7 @@
         "Time Diff between first and last (Mins)": 2160,
         "total ether received": 0.014,
         "Avg min between received tnx": 0.48,
-        "avg val received": 0.0000050,
+        "avg val received": 5e-06,
         "total transactions (including tnx to create contract)": 2910,
         "Unique Received From Addresses": 2290
       }
@@ -266,7 +269,7 @@
         "Time Diff between first and last (Mins)": 4320,
         "total ether received": 0.062,
         "Avg min between received tnx": 1.8,
-        "avg val received": 0.000055,
+        "avg val received": 5.5e-05,
         "total transactions (including tnx to create contract)": 1190,
         "Unique Received From Addresses": 890
       }
@@ -320,7 +323,7 @@
         "Time Diff between first and last (Mins)": 360,
         "total ether received": 0.0009,
         "Avg min between received tnx": 0.08,
-        "avg val received": 0.00000022,
+        "avg val received": 2.2e-07,
         "total transactions (including tnx to create contract)": 4280,
         "Unique Received From Addresses": 3580
       }
@@ -356,7 +359,7 @@
         "Time Diff between first and last (Mins)": 2520,
         "total ether received": 0.031,
         "Avg min between received tnx": 0.95,
-        "avg val received": 0.0000157,
+        "avg val received": 1.57e-05,
         "total transactions (including tnx to create contract)": 2080,
         "Unique Received From Addresses": 1640
       }
@@ -410,7 +413,7 @@
         "Time Diff between first and last (Mins)": 1800,
         "total ether received": 0.018,
         "Avg min between received tnx": 0.72,
-        "avg val received": 0.0000079,
+        "avg val received": 7.9e-06,
         "total transactions (including tnx to create contract)": 2410,
         "Unique Received From Addresses": 1900
       }
@@ -446,7 +449,7 @@
         "Time Diff between first and last (Mins)": 5400,
         "total ether received": 0.078,
         "Avg min between received tnx": 2.4,
-        "avg val received": 0.0000876,
+        "avg val received": 8.76e-05,
         "total transactions (including tnx to create contract)": 950,
         "Unique Received From Addresses": 710
       }
@@ -455,7 +458,7 @@
       "user_id": "USR-0025",
       "target_address": "0x9D0E1F2A3B4C5D6E7F8A9B0C1D2E3F4A5B6C7D8E",
       "classification": "safe",
-      "risk_score": 0.10,
+      "risk_score": 0.1,
       "features": {
         "Total ERC20 tnxs": 131,
         "ERC20 uniq rec contract addr": 8,
@@ -500,7 +503,7 @@
         "Time Diff between first and last (Mins)": 1080,
         "total ether received": 0.0075,
         "Avg min between received tnx": 0.32,
-        "avg val received": 0.0000025,
+        "avg val received": 2.5e-06,
         "total transactions (including tnx to create contract)": 3100,
         "Unique Received From Addresses": 2480
       }
@@ -536,7 +539,7 @@
         "Time Diff between first and last (Mins)": 3960,
         "total ether received": 0.052,
         "Avg min between received tnx": 1.5,
-        "avg val received": 0.000031,
+        "avg val received": 3.1e-05,
         "total transactions (including tnx to create contract)": 1770,
         "Unique Received From Addresses": 1360
       }
@@ -590,7 +593,7 @@
         "Time Diff between first and last (Mins)": 2016,
         "total ether received": 0.026,
         "Avg min between received tnx": 0.67,
-        "avg val received": 0.0000126,
+        "avg val received": 1.26e-05,
         "total transactions (including tnx to create contract)": 2180,
         "Unique Received From Addresses": 1730
       }
@@ -680,7 +683,7 @@
         "Time Diff between first and last (Mins)": 240,
         "total ether received": 0.0005,
         "Avg min between received tnx": 0.05,
-        "avg val received": 0.00000011,
+        "avg val received": 1.1e-07,
         "total transactions (including tnx to create contract)": 4920,
         "Unique Received From Addresses": 4020
       }
@@ -707,7 +710,7 @@
       "user_id": "USR-0039",
       "target_address": "0xB3F4A5B6C7D8E9F0A1B2C3D4E5F6A7B8C9D0E1F2",
       "classification": "suspicious",
-      "risk_score": 0.80,
+      "risk_score": 0.8,
       "features": {
         "Total ERC20 tnxs": 1550,
         "ERC20 uniq rec contract addr": 248,
@@ -716,7 +719,7 @@
         "Time Diff between first and last (Mins)": 3240,
         "total ether received": 0.041,
         "Avg min between received tnx": 1.1,
-        "avg val received": 0.0000265,
+        "avg val received": 2.65e-05,
         "total transactions (including tnx to create contract)": 1640,
         "Unique Received From Addresses": 1240
       }
@@ -725,7 +728,7 @@
       "user_id": "USR-0040",
       "target_address": "0xC4A5B6C7D8E9F0A1B2C3D4E5F6A7B8C9D0E1F2A3",
       "classification": "safe",
-      "risk_score": 0.20,
+      "risk_score": 0.2,
       "features": {
         "Total ERC20 tnxs": 267,
         "ERC20 uniq rec contract addr": 19,
@@ -761,7 +764,7 @@
       "user_id": "USR-0042",
       "target_address": "0xE6C7D8E9F0A1B2C3D4E5F6A7B8C9D0E1F2A3B4C5",
       "classification": "suspicious",
-      "risk_score": 0.90,
+      "risk_score": 0.9,
       "features": {
         "Total ERC20 tnxs": 2620,
         "ERC20 uniq rec contract addr": 468,
@@ -770,7 +773,7 @@
         "Time Diff between first and last (Mins)": 1584,
         "total ether received": 0.012,
         "Avg min between received tnx": 0.54,
-        "avg val received": 0.0000046,
+        "avg val received": 4.6e-06,
         "total transactions (including tnx to create contract)": 2750,
         "Unique Received From Addresses": 2150
       }
@@ -815,7 +818,7 @@
       "user_id": "USR-0045",
       "target_address": "0xB9F0A1B2C3D4E5F6A7B8C9D0E1F2A3B4C5D6E7F8",
       "classification": "safe",
-      "risk_score": 0.10,
+      "risk_score": 0.1,
       "features": {
         "Total ERC20 tnxs": 103,
         "ERC20 uniq rec contract addr": 6,
@@ -860,7 +863,7 @@
         "Time Diff between first and last (Mins)": 480,
         "total ether received": 0.0032,
         "Avg min between received tnx": 0.22,
-        "avg val received": 0.00000089,
+        "avg val received": 8.9e-07,
         "total transactions (including tnx to create contract)": 3740,
         "Unique Received From Addresses": 3050
       }
@@ -896,7 +899,7 @@
         "Time Diff between first and last (Mins)": 2304,
         "total ether received": 0.037,
         "Avg min between received tnx": 0.88,
-        "avg val received": 0.0000197,
+        "avg val received": 1.97e-05,
         "total transactions (including tnx to create contract)": 1980,
         "Unique Received From Addresses": 1550
       }
