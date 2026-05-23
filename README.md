@@ -16,7 +16,7 @@ DApp phát hiện ví gian lận sử dụng mô hình lưu trữ lai (Hybrid St
 
 ### Backend
 
-* Database gốc (`dataset.json`) chứa thông tin người dùng được upload lên **IPFS** để tối ưu hóa chi phí lưu trữ.
+* Database gốc (`dataset.json`) chứa thông tin người dùng được upload lên **IPFS** để tối ưu hóa chi phí lưu trữ (thông qua Pinata.cloud)
 * Smart Contract Solidity (`DatasetRegistry.sol`) lưu trữ duy nhất chuỗi mã **CID** của file dữ liệu trên chuỗi. Khi DB thay đổi, Backend sẽ push file mới lên IPFS và ký giao dịch cập nhật CID mới lên Contract.
     
 * **Core Logic Layer (AI + API):**
@@ -41,3 +41,5 @@ DApp phát hiện ví gian lận sử dụng mô hình lưu trữ lai (Hybrid St
 ### How to run
 * frontend : npm run dev
 * backend : uvicorn main:app --reload --port 8000
+
+---
