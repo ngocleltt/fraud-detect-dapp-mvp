@@ -9,6 +9,7 @@ import AuditView from "./components/AuditView";
 import SimulateView from "./components/SimulateView";
 import HowItWorksView from "./components/HowItWorksView";
 
+
 interface UserFeatures {
   "Total ERC20 tnxs": number;
   "ERC20 uniq rec contract addr": number;
@@ -25,8 +26,6 @@ interface UserFeatures {
 interface UserRow {
   user_id: string;
   target_address: string;
-  night_activity: number;
-  risky_interact: number;
   risk_score: number;
   classification: "safe" | "suspicious";
   features: UserFeatures;
@@ -80,20 +79,14 @@ export default function Home() {
     setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: "WALLET // Session detached by user authorization." }]);
   };
 
-  const handleAuditSearch = async (id: string): Promise<{ userId: string; walletAddress: string; riskScore: number; status: "SAFE" | "SUSPICIOUS" } | null> => {
+  const handleAuditSearch = async (id: string): Promise<UserRow | null> => {
     setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `AUDIT // Contacting registry for node: [${id}]` }]);
     try {
       const res = await fetch(`http://127.0.0.1:8000/api/users/${encodeURIComponent(id)}`);
       if (res.ok) {
         const data = await res.json();
-        const mappedResult = {
-          userId: data.user_id,
-          walletAddress: data.target_address,
-          riskScore: Math.round(data.risk_score * 100),
-          status: (data.classification === "suspicious" ? "SUSPICIOUS" : "SAFE") as "SAFE" | "SUSPICIOUS",
-        };
-        setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `AUDIT // Account found: ${mappedResult.userId}, status ${mappedResult.status}.` }]);
-        return mappedResult;
+        setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `AUDIT // Account found: ${data.user_id}, status ${data.classification}.` }]);
+        return data as UserRow;
       }
       if (res.status === 404) {
         setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `AUDIT // Registry lookup failed for node: [${id}]` }]);

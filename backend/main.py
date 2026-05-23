@@ -18,17 +18,16 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATASET_PATH = os.path.join(BASE_DIR, "dataset.json")
 
 class UserFeaturesInput(BaseModel):
-    total_received: float
-    total_sent: float
-    num_transactions: int
-    avg_transaction_value: float
-    max_transaction_value: float
-    transaction_frequency: float
-    unique_counterparties: int
-    account_age_days: int
-    in_out_ratio: float
-    night_activity_ratio: float
-    known_risky_counterparty_ratio: float
+    total_erc20_tnxs: int
+    erc20_uniq_rec_contract_addr: int
+    erc20_uniq_rec_token_name: int
+    erc20_uniq_rec_addr: int
+    time_diff_mins: int
+    total_ether_received: float
+    avg_min_between_rec: float
+    avg_val_received: float
+    total_transactions_incl_create: int
+    unique_received_from_addresses: int
 
 class SimulateRequest(BaseModel):
     user_id: str
@@ -44,6 +43,30 @@ def load_dataset():
 def save_dataset(data):
     with open(DATASET_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
+
+def calculate_risk_score(features: UserFeaturesInput) -> float:
+    score = 0.0
+    if features.total_erc20_tnxs > 1000:
+        score += 0.3
+    elif features.total_erc20_tnxs > 500:
+        score += 0.15
+    if features.erc20_uniq_rec_contract_addr > 100:
+        score += 0.2
+    if features.erc20_uniq_rec_token_name > 80:
+        score += 0.15
+    if features.erc20_uniq_rec_addr > 500:
+        score += 0.2
+    if features.time_diff_mins < 1440:
+        score += 0.2
+    if features.avg_min_between_rec < 1.0:
+        score += 0.2
+    if features.total_ether_received < 0.1 and features.total_erc20_tnxs > 500:
+        score += 0.25
+    if features.avg_val_received < 0.00001:
+        score += 0.15
+    return min(score, 1.0)
+
+
 
 @app.get("/api/users")
 def get_all_users():
@@ -61,22 +84,27 @@ def get_user_by_id_or_address(search_id: str):
 def simulate_transaction(payload: SimulateRequest):
     data = load_dataset()
     
-    score = 0.14
-    if payload.features.night_activity_ratio > 0.5 and payload.features.known_risky_counterparty_ratio > 0.4:
-        score = 0.92
-        
-    classification = "suspicious" if score > 0.5 else "safe"
+    risk_score = calculate_risk_score(payload.features)
+    classification = "suspicious" if risk_score > 0.4 else "safe"
     
     new_user = {
         "user_id": payload.user_id,
         "target_address": payload.target_address,
-        "night_activity": payload.features.night_activity_ratio,
-        "risky_interact": payload.features.known_risky_counterparty_ratio,
-        "risk_score": score,
         "classification": classification,
-        "features": payload.features.dict()
+        "risk_score": risk_score,
+        "features": {
+            "Total ERC20 tnxs": payload.features.total_erc20_tnxs,
+            "ERC20 uniq rec contract addr": payload.features.erc20_uniq_rec_contract_addr,
+            "ERC20 uniq rec token name": payload.features.erc20_uniq_rec_token_name,
+            "ERC20 uniq rec addr": payload.features.erc20_uniq_rec_addr,
+            "Time Diff between first and last (Mins)": payload.features.time_diff_mins,
+            "total ether received": payload.features.total_ether_received,
+            "Avg min between received tnx": payload.features.avg_min_between_rec,
+            "avg val received": payload.features.avg_val_received,
+            "total transactions (including tnx to create contract)": payload.features.total_transactions_incl_create,
+            "Unique Received From Addresses": payload.features.unique_received_from_addresses
+        }
     }
-    
     data["users"].insert(0, new_user)
     if "metadata" in data and "total_records" in data["metadata"]:
         data["metadata"]["total_records"] = len(data["users"])
