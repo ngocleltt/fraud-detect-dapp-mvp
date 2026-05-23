@@ -10,17 +10,16 @@ import SimulateView from "./components/SimulateView";
 import HowItWorksView from "./components/HowItWorksView";
 
 interface UserFeatures {
-  total_received: number;
-  total_sent: number;
-  num_transactions: number;
-  avg_transaction_value: number;
-  max_transaction_value: number;
-  transaction_frequency: number;
-  unique_counterparties: number;
-  account_age_days: number;
-  in_out_ratio: number;
-  night_activity_ratio: number;
-  known_risky_counterparty_ratio: number;
+  "Total ERC20 tnxs": number;
+  "ERC20 uniq rec contract addr": number;
+  "ERC20 uniq rec token name": number;
+  "ERC20 uniq rec addr": number;
+  "Time Diff between first and last (Mins)": number;
+  "total ether received": number;
+  "Avg min between received tnx": number;
+  "avg val received": number;
+  "total transactions (including tnx to create contract)": number;
+  "Unique Received From Addresses": number;
 }
 
 interface UserRow {
@@ -91,7 +90,7 @@ export default function Home() {
           userId: data.user_id,
           walletAddress: data.target_address,
           riskScore: Math.round(data.risk_score * 100),
-          status: data.classification === "suspicious" ? "SUSPICIOUS" : "SAFE",
+          status: (data.classification === "suspicious" ? "SUSPICIOUS" : "SAFE") as "SAFE" | "SUSPICIOUS",
         };
         setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `AUDIT // Account found: ${mappedResult.userId}, status ${mappedResult.status}.` }]);
         return mappedResult;
@@ -109,17 +108,16 @@ export default function Home() {
   interface SimulateFormData {
     user_id: string;
     target_address: string;
-    total_received: number;
-    total_sent: number;
-    num_transactions: number;
-    avg_transaction_value: number;
-    max_transaction_value: number;
-    transaction_frequency: number;
-    unique_counterparties: number;
-    account_age_days: number;
-    in_out_ratio: number;
-    night_activity_ratio: number;
-    known_risky_counterparty_ratio: number;
+    total_erc20_tnxs: number;
+    erc20_uniq_rec_contract_addr: number;
+    erc20_uniq_rec_token_name: number;
+    erc20_uniq_rec_addr: number;
+    time_diff_mins: number;
+    total_ether_received: number;
+    avg_min_between_rec: number;
+    avg_val_received: number;
+    total_transactions_incl_create: number;
+    unique_received_from_addresses: number;
   }
 
   const handleSimulateSubmit = async (rawFormData: SimulateFormData) => {
@@ -127,17 +125,16 @@ export default function Home() {
       user_id: rawFormData.user_id,
       target_address: rawFormData.target_address,
       features: {
-        total_received: rawFormData.total_received,
-        total_sent: rawFormData.total_sent,
-        num_transactions: rawFormData.num_transactions,
-        avg_transaction_value: rawFormData.avg_transaction_value,
-        max_transaction_value: rawFormData.max_transaction_value,
-        transaction_frequency: rawFormData.transaction_frequency,
-        unique_counterparties: rawFormData.unique_counterparties,
-        account_age_days: rawFormData.account_age_days,
-        in_out_ratio: rawFormData.in_out_ratio,
-        night_activity_ratio: rawFormData.night_activity_ratio,
-        known_risky_counterparty_ratio: rawFormData.known_risky_counterparty_ratio
+        "Total ERC20 tnxs": rawFormData.total_erc20_tnxs,
+        "ERC20 uniq rec contract addr": rawFormData.erc20_uniq_rec_contract_addr,
+        "ERC20 uniq rec token name": rawFormData.erc20_uniq_rec_token_name,
+        "ERC20 uniq rec addr": rawFormData.erc20_uniq_rec_addr,
+        "Time Diff between first and last (Mins)": rawFormData.time_diff_mins,
+        "total ether received": rawFormData.total_ether_received,
+        "Avg min between received tnx": rawFormData.avg_min_between_rec,
+        "avg val received": rawFormData.avg_val_received,
+        "total transactions (including tnx to create contract)": rawFormData.total_transactions_incl_create,
+        "Unique Received From Addresses": rawFormData.unique_received_from_addresses
       }
     };
 
