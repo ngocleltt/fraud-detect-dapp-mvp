@@ -36,7 +36,7 @@ export default function Header({ isConnected, walletAddress, onConnect, onDiscon
           </div>
           <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full">
             <Cpu className="w-3.5 h-3.5 text-blue-500" />
-            <span>AI Model: Logistic Regression v1.0.2</span>
+            <span>AI Model: XGBoost</span>
           </div>
         </div>
 
