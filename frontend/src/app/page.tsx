@@ -8,6 +8,7 @@ import OverviewView from "./components/OverviewView";
 import AuditView from "./components/AuditView";
 import SimulateView from "./components/SimulateView";
 import HowItWorksView from "./components/HowItWorksView";
+import { saveCID } from "./utils/contract";
 
 
 interface UserFeatures {
@@ -111,6 +112,7 @@ export default function Home() {
     avg_val_received: number;
     total_transactions_incl_create: number;
     unique_received_from_addresses: number;
+    cid: string;
   }
 
   const handleSimulateSubmit = async (rawFormData: SimulateFormData) => {
@@ -130,7 +132,7 @@ export default function Home() {
         unique_received_from_addresses: rawFormData.unique_received_from_addresses
       }
     };
-
+    
     try {
       const res = await fetch("http://127.0.0.1:8000/api/simulate", {
         method: "POST",
@@ -141,6 +143,18 @@ export default function Home() {
         const freshUser = await res.json();
         setUsers(prev => [freshUser, ...prev]);
         setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `SIM // Network entry approved. Label: ${freshUser.classification.toUpperCase()}` }]);
+        
+        console.log("DEBUG - rawFormData.cid:", rawFormData.cid);
+        if (rawFormData.cid && rawFormData.cid.trim() !== "") {
+          try {
+            const txHash = await saveCID(rawFormData.cid);
+            setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `BLOCKCHAIN // CID saved. Tx: ${txHash.slice(0, 10)}...` }]);
+          } catch (err) {
+            console.error(err);
+            setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `ERR // Failed to save CID on blockchain: ${(err as Error).message}` }]);
+          }
+        }
+        
         setCurrentMenu("overview");
         return;
       }

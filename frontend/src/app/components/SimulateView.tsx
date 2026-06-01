@@ -16,6 +16,7 @@ export interface SimulateFormData {
   avg_val_received: number;
   total_transactions_incl_create: number;
   unique_received_from_addresses: number;
+  cid: string;
 }
 
 interface SimulateViewProps {
@@ -36,6 +37,7 @@ export default function SimulateView({ onSimulate }: SimulateViewProps) {
     avg_val_received: 0,
     total_transactions_incl_create: 0,
     unique_received_from_addresses: 0,
+    cid: "",
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,13 +45,14 @@ export default function SimulateView({ onSimulate }: SimulateViewProps) {
     const key = name as keyof SimulateFormData;
     setFormData(prev => ({
       ...prev,
-      [key]: key === "user_id" || key === "target_address" ? value : Number(value)
+      [key]: key === "user_id" || key === "target_address" || key === "cid" ? value : Number(value)
     }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.user_id || !formData.target_address) return;
+    console.log("DEBUG - SimulateView submitting:", formData);
     onSimulate(formData);
   };
 
@@ -61,6 +64,7 @@ export default function SimulateView({ onSimulate }: SimulateViewProps) {
           <h2 className="text-sm font-bold tracking-wider text-slate-700">SIMULATE REAL-TIME TRANSACTION</h2>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+          {/* User ID and Wallet Address */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-slate-500 mb-1 font-medium">User ID</label>
@@ -71,6 +75,7 @@ export default function SimulateView({ onSimulate }: SimulateViewProps) {
               <input type="text" name="target_address" value={formData.target_address} onChange={handleInputChange} placeholder="0x..." className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
             </div>
           </div>
+          {/* Features */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-slate-500 mb-1 font-medium">Total ERC20 Tx</label>
@@ -121,8 +126,29 @@ export default function SimulateView({ onSimulate }: SimulateViewProps) {
               <input type="number" name="unique_received_from_addresses" value={formData.unique_received_from_addresses} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
             </div>
           </div>
+          {/* CID field */}
+          <div>
+            <label className="block text-slate-500 mb-1 font-medium">IPFS CID</label>
+            <input type="text" name="cid" value={formData.cid} onChange={handleInputChange} placeholder="Qm..." className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-slate-700" />
+          </div>
           <button type="submit" className="w-full mt-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-2.5 rounded text-sm transition-all shadow-md shadow-blue-500/10">
             Push Transaction Flow
+          </button>
+          <button
+            type="button"
+            onClick={async () => {
+              const cid = "bafkreihv3575nkeozo22yqjzx25xzfpwss7mzsx4pnc4qjyztfm62k4nxi"; // Thay bằng CID thật
+              try {
+                const { saveCID } = await import("../utils/contract");
+                const txHash = await saveCID(cid);
+                alert(`✅ CID saved! Tx: ${txHash.slice(0, 10)}...`);
+              } catch (err: any) {
+                alert(`❌ Failed: ${err.message}`);
+              }
+            }}
+            className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded text-sm"
+          >
+            💾 Lưu CID của dataset.json lên Blockchain
           </button>
         </form>
       </section>

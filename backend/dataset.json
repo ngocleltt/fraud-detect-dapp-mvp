@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "created_at": "2026-05-23T00:00:00Z",
     "description": "Blockchain Fraud Detection Dataset - 50 User Records (Converted to 10 ERC20 features)",
-    "total_records": 53,
+    "total_records": 52,
     "features": [
       "Total ERC20 tnxs",
       "ERC20 uniq rec contract addr",
@@ -22,6 +22,44 @@
     ]
   },
   "users": [
+    {
+      "user_id": "USR-0052",
+      "target_address": "1234",
+      "classification": "suspicious",
+      "risk_score": 0.55,
+      "features": {
+        "Total ERC20 tnxs": 0,
+        "ERC20 uniq rec contract addr": 0,
+        "ERC20 uniq rec token name": 0,
+        "ERC20 uniq rec addr": 0,
+        "Time Diff between first and last (Mins)": 0,
+        "total ether received": 0.0,
+        "Avg min between received tnx": 0.0,
+        "avg val received": 0.0,
+        "total transactions (including tnx to create contract)": 0,
+        "Unique Received From Addresses": 0
+      },
+      "ipfs_cid": "bafkreigtnnqlxildemv2tnv4jllcwvhmo5xwhzqux66hautwsw6n7ema4y"
+    },
+    {
+      "user_id": "USR-0051",
+      "target_address": "123",
+      "classification": "suspicious",
+      "risk_score": 0.55,
+      "features": {
+        "Total ERC20 tnxs": 0,
+        "ERC20 uniq rec contract addr": 0,
+        "ERC20 uniq rec token name": 0,
+        "ERC20 uniq rec addr": 0,
+        "Time Diff between first and last (Mins)": 0,
+        "total ether received": 0.0,
+        "Avg min between received tnx": 0.0,
+        "avg val received": 0.0,
+        "total transactions (including tnx to create contract)": 0,
+        "Unique Received From Addresses": 0
+      },
+      "ipfs_cid": "bafkreihc75nop3vuw465edvvwqcobde4xi7qxibhumzduxxl353kuafvia"
+    },
     {
       "user_id": "USR-0001",
       "target_address": "0x3f5CE5FBFe3E9af3971dD833D26bA9b5C936f0bE",
