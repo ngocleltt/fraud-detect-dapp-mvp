@@ -35,96 +35,223 @@ interface OverviewViewProps {
   terminalLogs: LogEntry[];
 }
 
-export default function OverviewView({ users, filterStatus, setFilterStatus, terminalLogs }: OverviewViewProps) {
-  const filteredUsers = users.filter(user => {
+export default function OverviewView({
+  users,
+  filterStatus,
+  setFilterStatus,
+  terminalLogs,
+}: OverviewViewProps) {
+  const filteredUsers = users.filter((user) => {
     if (filterStatus === "ALL") return true;
     if (filterStatus === "SAFE") return user.classification === "safe";
     return user.classification === "suspicious";
   });
 
-  const suspiciousCount = users.filter(u => u.classification === "suspicious").length;
-  const fraudRate = users.length > 0 ? ((suspiciousCount / users.length) * 100).toFixed(1) : "0.0";
+  const suspiciousCount = users.filter(
+    (u) => u.classification === "suspicious"
+  ).length;
+
+  const fraudRate =
+    users.length > 0 ? ((suspiciousCount / users.length) * 100).toFixed(1) : "0.0";
 
   return (
-    <div className="space-y-6 animate-fadeIn flex flex-col flex-1">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-xs font-medium text-slate-400">Total Evaluated Wallets</p>
-            <p className="text-2xl font-bold text-slate-800 mt-1">{users.length} Records</p>
+    <div className="animate-fadeIn flex flex-1 flex-col space-y-6">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Dataset volume
+              </p>
+              <p className="mt-2 text-2xl font-bold text-slate-900">
+                {users.length}
+              </p>
+              <p className="mt-1 text-sm text-slate-500">
+                Evaluated wallet records
+              </p>
+            </div>
+            <div className="rounded-2xl border border-blue-100 bg-blue-50 p-3 text-blue-600">
+              <Eye className="h-5 w-5" />
+            </div>
           </div>
-          <div className="p-3 bg-blue-50 text-blue-600 rounded-lg"><Eye className="w-5 h-5" /></div>
         </div>
-        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-xs font-medium text-slate-400">Anomalous Anomaly Rate</p>
-            <p className="text-2xl font-bold text-rose-600 mt-1">{fraudRate}%</p>
-          </div>
-          <div className="p-3 bg-rose-50 text-rose-600 rounded-lg"><AlertTriangle className="w-5 h-5" /></div>
-        </div>
-        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-xs font-medium text-slate-400">System Storage Fabric</p>
-            <p className="text-sm font-bold text-slate-700 mt-2">IPFS Decentralised CID</p>
-          </div>
-          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-lg"><Server className="w-5 h-5" /></div>
-        </div>
-      </div>
 
-      <section className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm overflow-hidden flex-1 flex flex-col">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-          <div className="flex items-center gap-2">
-            <Activity className="text-blue-600 w-5 h-5" />
-            <h2 className="text-sm font-bold tracking-wider text-slate-700">PRE-EVALUATED CONTRACT DATASET (BATCH MODE)</h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Suspicious rate
+              </p>
+              <p className="mt-2 text-2xl font-bold text-rose-600">
+                {fraudRate}%
+              </p>
+              <p className="mt-1 text-sm text-slate-500">
+                Flagged across current dataset
+              </p>
+            </div>
+            <div className="rounded-2xl border border-rose-100 bg-rose-50 p-3 text-rose-600">
+              <AlertTriangle className="h-5 w-5" />
+            </div>
           </div>
-          <div className="flex border border-slate-200 rounded-lg p-0.5 bg-slate-50 self-start">
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:col-span-2 xl:col-span-1">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Storage layer
+              </p>
+              <p className="mt-2 text-lg font-bold text-slate-900">
+                IPFS + CID Registry
+              </p>
+              <p className="mt-1 text-sm text-slate-500">
+                Anchored forensic storage reference
+              </p>
+            </div>
+            <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-3 text-indigo-600">
+              <Server className="h-5 w-5" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex flex-col gap-4 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <Activity className="h-4 w-4 text-blue-600" />
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Batch overview
+              </p>
+            </div>
+            <h2 className="mt-1 text-base font-bold text-slate-900">
+              Pre-evaluated wallet dataset
+            </h2>
+          </div>
+
+          <div className="flex rounded-xl border border-slate-200 bg-slate-50 p-1 self-start">
             {(["ALL", "SAFE", "SUSPICIOUS"] as const).map((status) => (
               <button
                 key={status}
                 onClick={() => setFilterStatus(status)}
-                className={`px-3 py-1 text-[11px] font-semibold rounded-md transition-colors ${filterStatus === status ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
+                className={`rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-all ${
+                  filterStatus === status
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-slate-500 hover:text-slate-800"
+                }`}
               >
                 {status}
               </button>
             ))}
           </div>
         </div>
-        <div className="overflow-x-auto flex-1">
-          <table className="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr className="border-b border-slate-200 text-slate-500 font-semibold bg-slate-50/70">
-                <th className="p-3">User ID</th>
-                <th className="p-3">Total ERC20 Tx</th>
-                <th className="p-3">Uniq Contract</th>
-                <th className="p-3">Uniq Token</th>
-                <th className="p-3">Uniq Rec Addr</th>
-                <th className="p-3">Time Diff (Mins)</th>
-                <th className="p-3">ETH Received</th>
-                <th className="p-3">Avg Min / Rec</th>
-                <th className="p-3">Avg Val (ETH)</th>
-                <th className="p-3">Total Tx (incl create)</th>
-                <th className="p-3">Uniq From Addrs</th>
-                <th className="p-3 text-right">Risk Score</th>
-                <th className="p-3 text-center">Status</th>
+
+        <div className="flex-1 overflow-x-auto">
+          <table className="w-full min-w-[1280px] border-collapse text-left">
+            <thead className="bg-slate-50/80">
+              <tr className="border-b border-slate-200">
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                  User ID
+                </th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                  Total ERC20 Tx
+                </th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                  Uniq Contract
+                </th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                  Uniq Token
+                </th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                  Uniq Rec Addr
+                </th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                  Time Diff
+                </th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                  ETH Received
+                </th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                  Avg Min / Rec
+                </th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                  Avg Val
+                </th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                  Total Tx
+                </th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                  Uniq From
+                </th>
+                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                  Risk
+                </th>
+                <th className="px-4 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                  Status
+                </th>
               </tr>
             </thead>
+
             <tbody className="divide-y divide-slate-100">
               {filteredUsers.map((user, idx) => (
-                <tr key={idx} className="hover:bg-slate-50/80 transition-colors font-mono text-slate-600">
-                  <td className="p-3 text-blue-600 font-sans font-semibold">{user.user_id}</td>
-                  <td className="p-3">{user.features["Total ERC20 tnxs"]}</td>
-                  <td className="p-3">{user.features["ERC20 uniq rec contract addr"]}</td>
-                  <td className="p-3">{user.features["ERC20 uniq rec token name"]}</td>
-                  <td className="p-3">{user.features["ERC20 uniq rec addr"]}</td>
-                  <td className="p-3">{user.features["Time Diff between first and last (Mins)"]}</td>
-                  <td className="p-3">{user.features["total ether received"]}</td>
-                  <td className="p-3">{user.features["Avg min between received tnx"]}</td>
-                  <td className="p-3">{user.features["avg val received"].toFixed(6)}</td>
-                  <td className="p-3">{user.features["total transactions (including tnx to create contract)"]}</td>
-                  <td className="p-3">{user.features["Unique Received From Addresses"]}</td>
-                  <td className={`p-3 text-right font-bold ${user.classification === "suspicious" ? "text-rose-600" : "text-emerald-600"}`}>{(user.risk_score * 100).toFixed(0)}%</td>
-                  <td className="p-3 text-center">
-                    <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded ${user.classification === "suspicious" ? "bg-rose-50 text-rose-600 border border-rose-200" : "bg-emerald-50 text-emerald-600 border border-emerald-200"}`}>
+                <tr
+                  key={idx}
+                  className="text-sm text-slate-600 transition-colors hover:bg-slate-50/80"
+                >
+                  <td className="px-4 py-3 font-semibold text-blue-600">
+                    {user.user_id}
+                  </td>
+                  <td className="px-4 py-3 font-mono">
+                    {user.features["Total ERC20 tnxs"]}
+                  </td>
+                  <td className="px-4 py-3 font-mono">
+                    {user.features["ERC20 uniq rec contract addr"]}
+                  </td>
+                  <td className="px-4 py-3 font-mono">
+                    {user.features["ERC20 uniq rec token name"]}
+                  </td>
+                  <td className="px-4 py-3 font-mono">
+                    {user.features["ERC20 uniq rec addr"]}
+                  </td>
+                  <td className="px-4 py-3 font-mono">
+                    {user.features["Time Diff between first and last (Mins)"]}
+                  </td>
+                  <td className="px-4 py-3 font-mono">
+                    {user.features["total ether received"]}
+                  </td>
+                  <td className="px-4 py-3 font-mono">
+                    {user.features["Avg min between received tnx"]}
+                  </td>
+                  <td className="px-4 py-3 font-mono">
+                    {user.features["avg val received"].toFixed(6)}
+                  </td>
+                  <td className="px-4 py-3 font-mono">
+                    {
+                      user.features[
+                        "total transactions (including tnx to create contract)"
+                      ]
+                    }
+                  </td>
+                  <td className="px-4 py-3 font-mono">
+                    {user.features["Unique Received From Addresses"]}
+                  </td>
+                  <td
+                    className={`px-4 py-3 text-right font-bold ${
+                      user.classification === "suspicious"
+                        ? "text-rose-600"
+                        : "text-emerald-600"
+                    }`}
+                  >
+                    {(user.risk_score * 100).toFixed(0)}%
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span
+                      className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold ${
+                        user.classification === "suspicious"
+                          ? "border-rose-200 bg-rose-50 text-rose-600"
+                          : "border-emerald-200 bg-emerald-50 text-emerald-600"
+                      }`}
+                    >
                       {user.classification.toUpperCase()}
                     </span>
                   </td>
@@ -135,11 +262,15 @@ export default function OverviewView({ users, filterStatus, setFilterStatus, ter
         </div>
       </section>
 
-      <section className="bg-slate-900 text-slate-400 p-4 rounded-xl font-mono text-[11px] shadow-sm border border-slate-800">
-        <div className="flex items-center gap-2 mb-2 border-b border-slate-800 pb-2 text-slate-500 font-sans font-bold tracking-widest">
-          <Activity className="w-3.5 h-3.5 text-blue-500" /> LIVE FORENSIC TELEMETRY STREAM
+      <section className="rounded-2xl border border-slate-800 bg-slate-900 p-4 shadow-sm">
+        <div className="mb-3 flex items-center gap-2 border-b border-slate-800 pb-3">
+          <Activity className="h-3.5 w-3.5 text-blue-500" />
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Live forensic telemetry
+          </p>
         </div>
-        <div className="space-y-1 max-h-24 overflow-y-auto">
+
+        <div className="max-h-28 space-y-1 overflow-y-auto font-mono text-[11px] text-slate-400">
           {terminalLogs.map((log, index) => (
             <div key={index} className="flex gap-2">
               <span className="text-slate-600">[{log.timestamp}]</span>

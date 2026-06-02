@@ -8,8 +8,6 @@ import OverviewView from "./components/OverviewView";
 import AuditView from "./components/AuditView";
 import SimulateView from "./components/SimulateView";
 import HowItWorksView from "./components/HowItWorksView";
-import { saveCID } from "./utils/contract";
-
 
 interface UserFeatures {
   "Total ERC20 tnxs": number;
@@ -37,16 +35,44 @@ interface LogEntry {
   message: string;
 }
 
-export default function Home() {
-  const [currentMenu, setCurrentMenu] = useState("overview");
-  const [filterStatus, setFilterStatus] = useState<"ALL" | "SAFE" | "SUSPICIOUS">("ALL");
-  const [walletState, setWalletState] = useState({ isConnected: false, address: "" });
-  const [users, setUsers] = useState<UserRow[]>([]);
+interface SimulateFormData {
+  user_id: string;
+  target_address: string;
+  total_erc20_tnxs: number;
+  erc20_uniq_rec_contract_addr: number;
+  erc20_uniq_rec_token_name: number;
+  erc20_uniq_rec_addr: number;
+  time_diff_mins: number;
+  total_ether_received: number;
+  avg_min_between_rec: number;
+  avg_val_received: number;
+  total_transactions_incl_create: number;
+  unique_received_from_addresses: number;
+}
 
+type MenuKey = "overview" | "audit" | "simulate" | "how-it-works";
+
+export default function Home() {
+  const [currentMenu, setCurrentMenu] = useState<MenuKey>("overview");
+  const [filterStatus, setFilterStatus] = useState<"ALL" | "SAFE" | "SUSPICIOUS">("ALL");
+  const [walletState, setWalletState] = useState({
+    isConnected: false,
+    address: "",
+  });
+  const [users, setUsers] = useState<UserRow[]>([]);
   const [terminalLogs, setTerminalLogs] = useState<LogEntry[]>([
-    { timestamp: "00:00:01", message: "SYS // ChainEye Forensics Engine initialised successfully." },
-    { timestamp: "00:00:02", message: "IPFS // Connection verified. CID record buffer loaded." },
-    { timestamp: "00:00:03", message: "AI // Logistic Regression model weights online." }
+    {
+      timestamp: "00:00:01",
+      message: "SYS // ChainEye Forensics Engine initialised successfully.",
+    },
+    {
+      timestamp: "00:00:02",
+      message: "IPFS // Connection verified. CID record buffer loaded.",
+    },
+    {
+      timestamp: "00:00:03",
+      message: "AI // Logistic Regression model weights online.",
+    },
   ]);
 
   const getCurrentTimeString = () => {
@@ -60,60 +86,110 @@ export default function Home() {
         if (res.ok) {
           const data = await res.json();
           setUsers(data.users || []);
-          setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `REST // Fetched ${data.users?.length || 0} wallet records from server storage.` }]);
+          setTerminalLogs((prev) => [
+            ...prev,
+            {
+              timestamp: getCurrentTimeString(),
+              message: `REST // Fetched ${data.users?.length || 0} wallet records from server storage.`,
+            },
+          ]);
+        } else {
+          setTerminalLogs((prev) => [
+            ...prev,
+            {
+              timestamp: getCurrentTimeString(),
+              message: `ERR // Failed to fetch dataset. Status ${res.status}.`,
+            },
+          ]);
         }
       } catch (error) {
-        setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: "ERR // Backend node connection timeout." }]);
+        setTerminalLogs((prev) => [
+          ...prev,
+          {
+            timestamp: getCurrentTimeString(),
+            message: "ERR // Backend node connection timeout.",
+          },
+        ]);
         console.error(error);
       }
     };
+
     loadUsers();
   }, []);
 
   const handleConnectWallet = () => {
-    setWalletState({ isConnected: true, address: "0x3f5CE5FBFe3E9af3971dD833D26bA9b5C936f0bE" });
-    setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: "WALLET // Connected via MetaMask account signature." }]);
+    setWalletState({
+      isConnected: true,
+      address: "0x3f5CE5FBFe3E9af3971dD833D26bA9b5C936f0bE",
+    });
+    setTerminalLogs((prev) => [
+      ...prev,
+      {
+        timestamp: getCurrentTimeString(),
+        message: "WALLET // Connected via MetaMask account signature.",
+      },
+    ]);
   };
 
   const handleDisconnectWallet = () => {
     setWalletState({ isConnected: false, address: "" });
-    setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: "WALLET // Session detached by user authorization." }]);
+    setTerminalLogs((prev) => [
+      ...prev,
+      {
+        timestamp: getCurrentTimeString(),
+        message: "WALLET // Session detached by user authorization.",
+      },
+    ]);
   };
 
   const handleAuditSearch = async (id: string): Promise<UserRow | null> => {
-    setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `AUDIT // Contacting registry for node: [${id}]` }]);
+    setTerminalLogs((prev) => [
+      ...prev,
+      {
+        timestamp: getCurrentTimeString(),
+        message: `AUDIT // Contacting registry for node: [${id}]`,
+      },
+    ]);
+
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/users/${encodeURIComponent(id)}`);
+      const res = await fetch(
+        `http://127.0.0.1:8000/api/users/${encodeURIComponent(id)}`
+      );
+
       if (res.ok) {
         const data = await res.json();
-        setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `AUDIT // Account found: ${data.user_id}, status ${data.classification}.` }]);
+        setTerminalLogs((prev) => [
+          ...prev,
+          {
+            timestamp: getCurrentTimeString(),
+            message: `AUDIT // Account found: ${data.user_id}, status ${data.classification}.`,
+          },
+        ]);
         return data as UserRow;
       }
+
       if (res.status === 404) {
-        setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `AUDIT // Registry lookup failed for node: [${id}]` }]);
+        setTerminalLogs((prev) => [
+          ...prev,
+          {
+            timestamp: getCurrentTimeString(),
+            message: `AUDIT // Registry lookup failed for node: [${id}]`,
+          },
+        ]);
       }
     } catch (error) {
-      setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: "ERR // Registry fetch stream broken." }]);
+      setTerminalLogs((prev) => [
+        ...prev,
+        {
+          timestamp: getCurrentTimeString(),
+          message: "ERR // Registry fetch stream broken.",
+        },
+      ]);
       console.error(error);
     }
+
     return null;
   };
-
-  interface SimulateFormData {
-    user_id: string;
-    target_address: string;
-    total_erc20_tnxs: number;
-    erc20_uniq_rec_contract_addr: number;
-    erc20_uniq_rec_token_name: number;
-    erc20_uniq_rec_addr: number;
-    time_diff_mins: number;
-    total_ether_received: number;
-    avg_min_between_rec: number;
-    avg_val_received: number;
-    total_transactions_incl_create: number;
-    unique_received_from_addresses: number;
-    cid: string;
-  }
 
   const handleSimulateSubmit = async (rawFormData: SimulateFormData) => {
     const apiPayload = {
@@ -129,69 +205,140 @@ export default function Home() {
         avg_min_between_rec: rawFormData.avg_min_between_rec,
         avg_val_received: rawFormData.avg_val_received,
         total_transactions_incl_create: rawFormData.total_transactions_incl_create,
-        unique_received_from_addresses: rawFormData.unique_received_from_addresses
-      }
+        unique_received_from_addresses:
+          rawFormData.unique_received_from_addresses,
+      },
     };
-    
+
     try {
       const res = await fetch("http://127.0.0.1:8000/api/simulate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(apiPayload)
+        body: JSON.stringify(apiPayload),
       });
+
       if (res.ok) {
         const freshUser = await res.json();
-        setUsers(prev => [freshUser, ...prev]);
-        setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `SIM // Network entry approved. Label: ${freshUser.classification.toUpperCase()}` }]);
-        
-        console.log("DEBUG - rawFormData.cid:", rawFormData.cid);
-        if (rawFormData.cid && rawFormData.cid.trim() !== "") {
-          try {
-            const txHash = await saveCID(rawFormData.cid);
-            setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `BLOCKCHAIN // CID saved. Tx: ${txHash.slice(0, 10)}...` }]);
-          } catch (err) {
-            console.error(err);
-            setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `ERR // Failed to save CID on blockchain: ${(err as Error).message}` }]);
-          }
-        }
-        
+        setUsers((prev) => [freshUser, ...prev]);
+        setTerminalLogs((prev) => [
+          ...prev,
+          {
+            timestamp: getCurrentTimeString(),
+            message: `SIM // Network entry approved. Label: ${freshUser.classification.toUpperCase()}`,
+          },
+        ]);
         setCurrentMenu("overview");
         return;
       }
-      setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: `ERR // Simulation failed with status ${res.status}.` }]);
+
+      setTerminalLogs((prev) => [
+        ...prev,
+        {
+          timestamp: getCurrentTimeString(),
+          message: `ERR // Simulation failed with status ${res.status}.`,
+        },
+      ]);
     } catch (error) {
-      setTerminalLogs(prev => [...prev, { timestamp: getCurrentTimeString(), message: "ERR // Simulation transmission collapsed." }]);
+      setTerminalLogs((prev) => [
+        ...prev,
+        {
+          timestamp: getCurrentTimeString(),
+          message: "ERR // Simulation transmission collapsed.",
+        },
+      ]);
       console.error(error);
     }
   };
 
+  const navItems: {
+    key: MenuKey;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }[] = [
+    { key: "overview", label: "Dashboard Overview", icon: LayoutDashboard },
+    { key: "audit", label: "Account Audit", icon: Search },
+    { key: "simulate", label: "Simulate Transaction", icon: PlusCircle },
+    { key: "how-it-works", label: "How It Works", icon: HelpCircle },
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col">
-      <Header isConnected={walletState.isConnected} walletAddress={walletState.address} onConnect={handleConnectWallet} onDisconnect={handleDisconnectWallet} />
-      <div className="flex flex-1">
-        <aside className="w-64 border-r border-slate-200 p-4 space-y-1 bg-white">
-          <div className="text-[10px] font-bold text-slate-400 tracking-widest px-3 mb-3">NAVIGATION</div>
-          <button onClick={() => setCurrentMenu("overview")} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors ${currentMenu === "overview" ? "bg-blue-50 text-blue-600 border border-blue-100" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}>
-            <LayoutDashboard className="w-4 h-4" /> Dashboard Overview
-          </button>
-          <button onClick={() => setCurrentMenu("audit")} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors ${currentMenu === "audit" ? "bg-blue-50 text-blue-600 border border-blue-100" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}>
-            <Search className="w-4 h-4" /> Account Audit
-          </button>
-          <button onClick={() => setCurrentMenu("simulate")} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors ${currentMenu === "simulate" ? "bg-blue-50 text-blue-600 border border-blue-100" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}>
-            <PlusCircle className="w-4 h-4" /> Simulate Transaction
-          </button>
-          <button onClick={() => setCurrentMenu("how-it-works")} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors ${currentMenu === "how-it-works" ? "bg-blue-50 text-blue-600 border border-blue-100" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}>
-            <HelpCircle className="w-4 h-4" /> How It Works
-          </button>
+    <div className="flex h-screen flex-col bg-slate-50 text-slate-800">
+      <Header
+        isConnected={walletState.isConnected}
+        walletAddress={walletState.address}
+        onConnect={handleConnectWallet}
+        onDisconnect={handleDisconnectWallet}
+      />
+
+      <div className="flex min-h-0 flex-1 overflow-hidden">
+        <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-white md:block">
+          <div className="sticky top-0 flex h-full flex-col p-4">
+            <div className="mb-3 px-3 text-[10px] font-bold tracking-widest text-slate-400">
+              NAVIGATION
+            </div>
+
+            <div className="space-y-1">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const active = currentMenu === item.key;
+
+                return (
+                  <button
+                    key={item.key}
+                    onClick={() => setCurrentMenu(item.key)}
+                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-semibold transition-colors ${
+                      active
+                        ? "border border-blue-100 bg-blue-50 text-blue-600"
+                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-auto rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Session
+              </p>
+              <p className="mt-2 text-sm font-semibold text-slate-800">
+                {walletState.isConnected ? "Wallet linked" : "Wallet offline"}
+              </p>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Use the left navigation to inspect records, run audits, and
+                simulate incoming transaction profiles.
+              </p>
+            </div>
+          </div>
         </aside>
-        <main className="flex-1 p-6 overflow-hidden flex flex-col gap-6">
-          {currentMenu === "overview" && <OverviewView users={users} filterStatus={filterStatus} setFilterStatus={setFilterStatus} terminalLogs={terminalLogs} />}
-          {currentMenu === "audit" && <AuditView onSearch={handleAuditSearch} />}
-          {currentMenu === "simulate" && <SimulateView onSimulate={handleSimulateSubmit} />}
-          {currentMenu === "how-it-works" && <HowItWorksView />}
-        </main>
+
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+          <main className="flex-1 overflow-y-auto p-6">
+            {currentMenu === "overview" && (
+              <OverviewView
+                users={users}
+                filterStatus={filterStatus}
+                setFilterStatus={setFilterStatus}
+                terminalLogs={terminalLogs}
+              />
+            )}
+
+            {currentMenu === "audit" && (
+              <AuditView onSearch={handleAuditSearch} />
+            )}
+
+            {currentMenu === "simulate" && (
+              <SimulateView onSimulate={handleSimulateSubmit} />
+            )}
+
+            {currentMenu === "how-it-works" && <HowItWorksView />}
+          </main>
+
+          <Footer />
+        </div>
       </div>
-      <Footer />
     </div>
   );
 }
