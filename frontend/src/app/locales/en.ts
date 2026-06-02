@@ -226,7 +226,7 @@ const en = {
     submitButton: "Push Transaction Flow",
   },
 
-  howItWorks: {
+    howItWorks: {
     hero: {
       badge: "Detection Pipeline",
       title: "How ChainEye processes suspicious wallet activity",
@@ -282,6 +282,81 @@ const en = {
       label: "Why this matters",
       description:
         "The model runs off-chain for speed, while CID registration adds a verifiable blockchain layer for auditability.",
+    },
+
+    indicators: {
+      badge: "10 model indicators",
+      title: "Meaning of the 10 input indicators",
+      description:
+        "These are the exact fields used by the model. You can use the examples below when manually testing the simulate form.",
+      tipTitle: "Quick note",
+      tipDescription:
+        "The examples below are sample values only. They help the tester understand the expected input format, not guaranteed fraud outcomes.",
+      meaningLabel: "Meaning",
+      exampleLabel: "Example input",
+      items: {
+        totalErc20: {
+          meaning:
+            "Total number of ERC20 transactions associated with the wallet.",
+          example: "24",
+        },
+        uniqContract: {
+          meaning:
+            "Number of distinct token contract addresses the wallet has received from.",
+          example: "3",
+        },
+        uniqToken: {
+          meaning:
+            "Number of different token names received by the wallet.",
+          example: "2",
+        },
+        uniqRecAddr: {
+          meaning:
+            "Number of distinct ERC20 sender addresses that sent tokens to the wallet.",
+          example: "8",
+        },
+        timeDiff: {
+          meaning:
+            "Time span in minutes between the first and last observed transactions.",
+          example: "180",
+        },
+        totalEtherReceived: {
+          meaning: "Total amount of ETH received by the wallet.",
+          example: "12.75",
+        },
+        avgMinBetweenReceived: {
+          meaning:
+            "Average time gap in minutes between incoming transactions.",
+          example: "15.5",
+        },
+        avgValReceived: {
+          meaning: "Average value of each incoming transaction.",
+          example: "0.42",
+        },
+        totalTransactions: {
+          meaning:
+            "Total number of transactions, including contract-creation transactions if any.",
+          example: "31",
+        },
+        uniqueReceivedFrom: {
+          meaning:
+            "Number of unique source addresses that have sent assets to this wallet.",
+          example: "6",
+        },
+      },
+    },
+
+    testHints: {
+      label: "Testing hints",
+      title: "Example directions for manual testing",
+      description:
+        "If someone is testing the demo manually, these two patterns can help them create more realistic input values.",
+      safeLikeTitle: "Safe-like pattern",
+      safeLikeDescription:
+        "Try moderate transaction counts, a limited number of sender addresses, and fairly stable average values. Example intuition: fewer extreme spikes, fewer unrelated sources, and a more regular activity window.",
+      suspiciousLikeTitle: "Suspicious-like pattern",
+      suspiciousLikeDescription:
+        "Try higher transaction density, more unique sender addresses, or unusually fragmented activity. Example intuition: many incoming sources, compressed timing, and inconsistent transfer behavior.",
     },
   },
   header: {
