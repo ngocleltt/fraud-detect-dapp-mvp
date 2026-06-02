@@ -1,6 +1,7 @@
 "use client";
 
 import { Eye, AlertTriangle, Server, Activity } from "lucide-react";
+import type { Dictionary, Locale } from "../locales";
 
 interface UserFeatures {
   "Total ERC20 tnxs": number;
@@ -33,6 +34,8 @@ interface OverviewViewProps {
   filterStatus: "ALL" | "SAFE" | "SUSPICIOUS";
   setFilterStatus: (status: "ALL" | "SAFE" | "SUSPICIOUS") => void;
   terminalLogs: LogEntry[];
+  dict: Dictionary;
+  locale: Locale;
 }
 
 export default function OverviewView({
@@ -40,6 +43,8 @@ export default function OverviewView({
   filterStatus,
   setFilterStatus,
   terminalLogs,
+  dict,
+  locale,
 }: OverviewViewProps) {
   const filteredUsers = users.filter((user) => {
     if (filterStatus === "ALL") return true;
@@ -52,7 +57,21 @@ export default function OverviewView({
   ).length;
 
   const fraudRate =
-    users.length > 0 ? ((suspiciousCount / users.length) * 100).toFixed(1) : "0.0";
+    users.length > 0 ? ((suspiciousCount / users.length) * 100).toFixed(2) : "0.00";
+
+  const statusLabels = {
+    ALL: dict.overview.filters.all,
+    SAFE: dict.overview.filters.safe,
+    SUSPICIOUS: dict.overview.filters.suspicious,
+  };
+
+  const classificationLabels = {
+    safe: dict.common.safe.toUpperCase(),
+    suspicious: dict.common.suspicious.toUpperCase(),
+  };
+
+  const numberLocale =
+    locale === "vi" ? "vi-VN" : locale === "ru" ? "ru-RU" : "en-US";
 
   return (
     <div className="animate-fadeIn flex flex-1 flex-col space-y-6">
@@ -61,13 +80,13 @@ export default function OverviewView({
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                Dataset volume
+                {dict.overview.cards.datasetVolumeLabel}
               </p>
               <p className="mt-2 text-2xl font-bold text-slate-900">
-                {users.length}
+                {users.length.toLocaleString(numberLocale)}
               </p>
               <p className="mt-1 text-sm text-slate-500">
-                Evaluated wallet records
+                {dict.overview.cards.datasetVolumeDesc}
               </p>
             </div>
             <div className="rounded-2xl border border-blue-100 bg-blue-50 p-3 text-blue-600">
@@ -80,13 +99,13 @@ export default function OverviewView({
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                Suspicious rate
+                {dict.overview.cards.suspiciousRateLabel}
               </p>
               <p className="mt-2 text-2xl font-bold text-rose-600">
                 {fraudRate}%
               </p>
               <p className="mt-1 text-sm text-slate-500">
-                Flagged across current dataset
+                {dict.overview.cards.suspiciousRateDesc}
               </p>
             </div>
             <div className="rounded-2xl border border-rose-100 bg-rose-50 p-3 text-rose-600">
@@ -99,13 +118,13 @@ export default function OverviewView({
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                Storage layer
+                {dict.overview.cards.storageLayerLabel}
               </p>
               <p className="mt-2 text-lg font-bold text-slate-900">
-                IPFS + CID Registry
+                {dict.overview.cards.storageLayerTitle}
               </p>
               <p className="mt-1 text-sm text-slate-500">
-                Anchored forensic storage reference
+                {dict.overview.cards.storageLayerDesc}
               </p>
             </div>
             <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-3 text-indigo-600">
@@ -121,15 +140,15 @@ export default function OverviewView({
             <div className="flex items-center gap-2">
               <Activity className="h-4 w-4 text-blue-600" />
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                Batch overview
+                {dict.overview.batch.label}
               </p>
             </div>
             <h2 className="mt-1 text-base font-bold text-slate-900">
-              Pre-evaluated wallet dataset
+              {dict.overview.batch.title}
             </h2>
           </div>
 
-          <div className="flex rounded-xl border border-slate-200 bg-slate-50 p-1 self-start">
+          <div className="flex self-start rounded-xl border border-slate-200 bg-slate-50 p-1">
             {(["ALL", "SAFE", "SUSPICIOUS"] as const).map((status) => (
               <button
                 key={status}
@@ -140,7 +159,7 @@ export default function OverviewView({
                     : "text-slate-500 hover:text-slate-800"
                 }`}
               >
-                {status}
+                {statusLabels[status]}
               </button>
             ))}
           </div>
@@ -151,43 +170,43 @@ export default function OverviewView({
             <thead className="bg-slate-50/80">
               <tr className="border-b border-slate-200">
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                  User ID
+                  {dict.overview.table.userId}
                 </th>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                  Total ERC20 Tx
+                  {dict.overview.table.totalErc20Tx}
                 </th>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                  Uniq Contract
+                  {dict.overview.table.uniqContract}
                 </th>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                  Uniq Token
+                  {dict.overview.table.uniqToken}
                 </th>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                  Uniq Rec Addr
+                  {dict.overview.table.uniqRecAddr}
                 </th>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                  Time Diff
+                  {dict.overview.table.timeDiff}
                 </th>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                  ETH Received
+                  {dict.overview.table.ethReceived}
                 </th>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                  Avg Min / Rec
+                  {dict.overview.table.avgMinPerRec}
                 </th>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                  Avg Val
+                  {dict.overview.table.avgVal}
                 </th>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                  Total Tx
+                  {dict.overview.table.totalTx}
                 </th>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                  Uniq From
+                  {dict.overview.table.uniqFrom}
                 </th>
                 <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                  Risk
+                  {dict.overview.table.risk}
                 </th>
                 <th className="px-4 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                  Status
+                  {dict.overview.table.status}
                 </th>
               </tr>
             </thead>
@@ -223,7 +242,10 @@ export default function OverviewView({
                     {user.features["Avg min between received tnx"]}
                   </td>
                   <td className="px-4 py-3 font-mono">
-                    {user.features["avg val received"].toFixed(6)}
+                    {user.features["avg val received"].toLocaleString(numberLocale, {
+                      minimumFractionDigits: 6,
+                      maximumFractionDigits: 6,
+                    })}
                   </td>
                   <td className="px-4 py-3 font-mono">
                     {
@@ -242,7 +264,11 @@ export default function OverviewView({
                         : "text-emerald-600"
                     }`}
                   >
-                    {(user.risk_score * 100).toFixed(2)}%
+                    {(user.risk_score * 100).toLocaleString(numberLocale, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                    %
                   </td>
                   <td className="px-4 py-3 text-center">
                     <span
@@ -252,7 +278,7 @@ export default function OverviewView({
                           : "border-emerald-200 bg-emerald-50 text-emerald-600"
                       }`}
                     >
-                      {user.classification.toUpperCase()}
+                      {classificationLabels[user.classification]}
                     </span>
                   </td>
                 </tr>
@@ -266,7 +292,7 @@ export default function OverviewView({
         <div className="mb-3 flex items-center gap-2 border-b border-slate-800 pb-3">
           <Activity className="h-3.5 w-3.5 text-blue-500" />
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Live forensic telemetry
+            {dict.overview.telemetry}
           </p>
         </div>
 

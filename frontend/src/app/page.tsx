@@ -8,6 +8,7 @@ import OverviewView from "./components/OverviewView";
 import AuditView from "./components/AuditView";
 import SimulateView from "./components/SimulateView";
 import HowItWorksView from "./components/HowItWorksView";
+import { dictionaries, type Locale } from "./locales";
 
 interface UserFeatures {
   "Total ERC20 tnxs": number;
@@ -53,6 +54,9 @@ interface SimulateFormData {
 type MenuKey = "overview" | "audit" | "simulate" | "how-it-works";
 
 export default function Home() {
+  const [locale, setLocale] = useState<Locale>("en");
+  const dict = dictionaries[locale];
+
   const [currentMenu, setCurrentMenu] = useState<MenuKey>("overview");
   const [filterStatus, setFilterStatus] = useState<"ALL" | "SAFE" | "SUSPICIOUS">("ALL");
   const [walletState, setWalletState] = useState({
@@ -61,28 +65,30 @@ export default function Home() {
   });
   const [users, setUsers] = useState<UserRow[]>([]);
   const [terminalLogs, setTerminalLogs] = useState<LogEntry[]>([
-    {
-      timestamp: "00:00:01",
-      message: "SYS // ChainEye Forensics Engine initialised successfully.",
-    },
-    {
-      timestamp: "00:00:02",
-      message: "IPFS // Connection verified. CID record buffer loaded.",
-    },
-    {
-      timestamp: "00:00:03",
-      message: "AI // Logistic Regression model weights online.",
-    },
+    { timestamp: "00:00:01", message: dictionaries.en.logs.systemReady },
+    { timestamp: "00:00:02", message: dictionaries.en.logs.ipfsReady },
+    { timestamp: "00:00:03", message: dictionaries.en.logs.modelReady },
   ]);
 
   const getCurrentTimeString = () => {
-    return new Date().toLocaleTimeString();
+    return new Date().toLocaleTimeString(
+      locale === "vi" ? "vi-VN" : locale === "ru" ? "ru-RU" : "en-US"
+    );
   };
+
+  useEffect(() => {
+    setTerminalLogs([
+      { timestamp: "00:00:01", message: dict.logs.systemReady },
+      { timestamp: "00:00:02", message: dict.logs.ipfsReady },
+      { timestamp: "00:00:03", message: dict.logs.modelReady },
+    ]);
+  }, [locale, dict.logs]);
 
   useEffect(() => {
     const loadUsers = async () => {
       try {
         const res = await fetch("http://127.0.0.1:8000/api/users");
+
         if (res.ok) {
           const data = await res.json();
           setUsers(data.users || []);
@@ -90,7 +96,7 @@ export default function Home() {
             ...prev,
             {
               timestamp: getCurrentTimeString(),
-              message: `REST // Fetched ${data.users?.length || 0} wallet records from server storage.`,
+              message: dict.logs.fetchedRecords(data.users?.length || 0),
             },
           ]);
         } else {
@@ -98,7 +104,7 @@ export default function Home() {
             ...prev,
             {
               timestamp: getCurrentTimeString(),
-              message: `ERR // Failed to fetch dataset. Status ${res.status}.`,
+              message: dict.logs.fetchFailed(res.status),
             },
           ]);
         }
@@ -107,7 +113,7 @@ export default function Home() {
           ...prev,
           {
             timestamp: getCurrentTimeString(),
-            message: "ERR // Backend node connection timeout.",
+            message: dict.logs.backendTimeout,
           },
         ]);
         console.error(error);
@@ -115,7 +121,7 @@ export default function Home() {
     };
 
     loadUsers();
-  }, []);
+  }, [locale, dict.logs]);
 
   const handleConnectWallet = () => {
     setWalletState({
@@ -126,7 +132,7 @@ export default function Home() {
       ...prev,
       {
         timestamp: getCurrentTimeString(),
-        message: "WALLET // Connected via MetaMask account signature.",
+        message: dict.logs.walletConnected,
       },
     ]);
   };
@@ -137,7 +143,7 @@ export default function Home() {
       ...prev,
       {
         timestamp: getCurrentTimeString(),
-        message: "WALLET // Session detached by user authorization.",
+        message: dict.logs.walletDisconnected,
       },
     ]);
   };
@@ -147,7 +153,7 @@ export default function Home() {
       ...prev,
       {
         timestamp: getCurrentTimeString(),
-        message: `AUDIT // Contacting registry for node: [${id}]`,
+        message: dict.logs.auditSearching(id),
       },
     ]);
 
@@ -162,7 +168,7 @@ export default function Home() {
           ...prev,
           {
             timestamp: getCurrentTimeString(),
-            message: `AUDIT // Account found: ${data.user_id}, status ${data.classification}.`,
+            message: dict.logs.auditFound(data.user_id, data.classification),
           },
         ]);
         return data as UserRow;
@@ -173,7 +179,7 @@ export default function Home() {
           ...prev,
           {
             timestamp: getCurrentTimeString(),
-            message: `AUDIT // Registry lookup failed for node: [${id}]`,
+            message: dict.logs.auditNotFound(id),
           },
         ]);
       }
@@ -182,7 +188,7 @@ export default function Home() {
         ...prev,
         {
           timestamp: getCurrentTimeString(),
-          message: "ERR // Registry fetch stream broken.",
+          message: dict.logs.auditBroken,
         },
       ]);
       console.error(error);
@@ -224,7 +230,7 @@ export default function Home() {
           ...prev,
           {
             timestamp: getCurrentTimeString(),
-            message: `SIM // Network entry approved. Label: ${freshUser.classification.toUpperCase()}`,
+            message: dict.logs.simApproved(freshUser.classification),
           },
         ]);
         setCurrentMenu("overview");
@@ -235,7 +241,7 @@ export default function Home() {
         ...prev,
         {
           timestamp: getCurrentTimeString(),
-          message: `ERR // Simulation failed with status ${res.status}.`,
+          message: dict.logs.simFailed(res.status),
         },
       ]);
     } catch (error) {
@@ -243,7 +249,7 @@ export default function Home() {
         ...prev,
         {
           timestamp: getCurrentTimeString(),
-          message: "ERR // Simulation transmission collapsed.",
+          message: dict.logs.simBroken,
         },
       ]);
       console.error(error);
@@ -255,10 +261,10 @@ export default function Home() {
     label: string;
     icon: React.ComponentType<{ className?: string }>;
   }[] = [
-    { key: "overview", label: "Dashboard Overview", icon: LayoutDashboard },
-    { key: "audit", label: "Account Audit", icon: Search },
-    { key: "simulate", label: "Simulate Transaction", icon: PlusCircle },
-    { key: "how-it-works", label: "How It Works", icon: HelpCircle },
+    { key: "overview", label: dict.nav.overview, icon: LayoutDashboard },
+    { key: "audit", label: dict.nav.audit, icon: Search },
+    { key: "simulate", label: dict.nav.simulate, icon: PlusCircle },
+    { key: "how-it-works", label: dict.nav.howItWorks, icon: HelpCircle },
   ];
 
   return (
@@ -268,13 +274,16 @@ export default function Home() {
         walletAddress={walletState.address}
         onConnect={handleConnectWallet}
         onDisconnect={handleDisconnectWallet}
+        locale={locale}
+        dict={dict}
+        onChangeLocale={setLocale}
       />
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-white md:block">
           <div className="sticky top-0 flex h-full flex-col p-4">
             <div className="mb-3 px-3 text-[10px] font-bold tracking-widest text-slate-400">
-              NAVIGATION
+              {dict.nav.navigation}
             </div>
 
             <div className="space-y-1">
@@ -299,16 +308,38 @@ export default function Home() {
               })}
             </div>
 
+            <div className="mt-6 rounded-xl border border-slate-200 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                {dict.language.label}
+              </p>
+              <div className="mt-3 flex gap-2">
+                {(["en", "vi", "ru"] as Locale[]).map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => setLocale(lang)}
+                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                      locale === lang
+                        ? "bg-slate-900 text-white"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    {dict.language[lang]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="mt-auto rounded-2xl border border-slate-200 bg-slate-50 p-4">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                Session
+                {dict.session.title}
               </p>
               <p className="mt-2 text-sm font-semibold text-slate-800">
-                {walletState.isConnected ? "Wallet linked" : "Wallet offline"}
+                {walletState.isConnected
+                  ? dict.session.walletLinked
+                  : dict.session.walletOffline}
               </p>
               <p className="mt-1 text-xs leading-5 text-slate-500">
-                Use the left navigation to inspect records, run audits, and
-                simulate incoming transaction profiles.
+                {dict.session.description}
               </p>
             </div>
           </div>
@@ -322,18 +353,26 @@ export default function Home() {
                 filterStatus={filterStatus}
                 setFilterStatus={setFilterStatus}
                 terminalLogs={terminalLogs}
+                dict={dict}
+                locale={locale}
               />
             )}
 
             {currentMenu === "audit" && (
-              <AuditView onSearch={handleAuditSearch} />
+              <AuditView onSearch={handleAuditSearch} dict={dict} locale={locale} />
             )}
 
             {currentMenu === "simulate" && (
-              <SimulateView onSimulate={handleSimulateSubmit} />
+              <SimulateView
+                onSimulate={handleSimulateSubmit}
+                dict={dict}
+                locale={locale}
+              />
             )}
 
-            {currentMenu === "how-it-works" && <HowItWorksView />}
+            {currentMenu === "how-it-works" && (
+              <HowItWorksView dict={dict} locale={locale} />
+            )}
           </main>
 
           <Footer />

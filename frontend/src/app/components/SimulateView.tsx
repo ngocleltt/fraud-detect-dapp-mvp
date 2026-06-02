@@ -8,6 +8,7 @@ import {
   Binary,
   Sparkles,
 } from "lucide-react";
+import type { Dictionary, Locale } from "../locales";
 
 export interface SimulateFormData {
   user_id: string;
@@ -26,6 +27,8 @@ export interface SimulateFormData {
 
 interface SimulateViewProps {
   onSimulate: (data: SimulateFormData) => void;
+  dict: Dictionary;
+  locale: Locale;
 }
 
 type SimulateField = {
@@ -42,99 +45,11 @@ type FieldGroup = {
   fields: SimulateField[];
 };
 
-const fieldGroups: FieldGroup[] = [
-  {
-    title: "Identity",
-    icon: Wallet,
-    fields: [
-      {
-        label: "User ID",
-        name: "user_id",
-        type: "text",
-        placeholder: "e.g. USR-0051",
-      },
-      {
-        label: "Wallet Address",
-        name: "target_address",
-        type: "text",
-        placeholder: "0x...",
-      },
-    ],
-  },
-  {
-    title: "ERC20 Activity",
-    icon: Activity,
-    fields: [
-      {
-        label: "Total ERC20 Tx",
-        name: "total_erc20_tnxs",
-        type: "number",
-      },
-      {
-        label: "Unique Contract",
-        name: "erc20_uniq_rec_contract_addr",
-        type: "number",
-      },
-      {
-        label: "Unique Token",
-        name: "erc20_uniq_rec_token_name",
-        type: "number",
-      },
-      {
-        label: "Unique Receiver Address",
-        name: "erc20_uniq_rec_addr",
-        type: "number",
-      },
-    ],
-  },
-  {
-    title: "Value & Timing",
-    icon: Binary,
-    fields: [
-      {
-        label: "Time Diff (Mins)",
-        name: "time_diff_mins",
-        type: "number",
-      },
-      {
-        label: "ETH Received",
-        name: "total_ether_received",
-        type: "number",
-        step: "any",
-      },
-      {
-        label: "Avg Min Between Received",
-        name: "avg_min_between_rec",
-        type: "number",
-        step: "any",
-      },
-      {
-        label: "Avg Value Received",
-        name: "avg_val_received",
-        type: "number",
-        step: "any",
-      },
-    ],
-  },
-  {
-    title: "Structural Signals",
-    icon: Sparkles,
-    fields: [
-      {
-        label: "Total Tx (Incl Create)",
-        name: "total_transactions_incl_create",
-        type: "number",
-      },
-      {
-        label: "Unique From Addresses",
-        name: "unique_received_from_addresses",
-        type: "number",
-      },
-    ],
-  },
-];
-
-export default function SimulateView({ onSimulate }: SimulateViewProps) {
+export default function SimulateView({
+  onSimulate,
+  dict,
+  locale,
+}: SimulateViewProps) {
   const [formData, setFormData] = useState<SimulateFormData>({
     user_id: "",
     target_address: "",
@@ -149,6 +64,98 @@ export default function SimulateView({ onSimulate }: SimulateViewProps) {
     total_transactions_incl_create: 0,
     unique_received_from_addresses: 0,
   });
+
+  const fieldGroups: FieldGroup[] = [
+    {
+      title: dict.simulate.groups.identity,
+      icon: Wallet,
+      fields: [
+        {
+          label: dict.simulate.fields.userId,
+          name: "user_id",
+          type: "text",
+          placeholder: dict.simulate.placeholders.userId,
+        },
+        {
+          label: dict.simulate.fields.walletAddress,
+          name: "target_address",
+          type: "text",
+          placeholder: dict.simulate.placeholders.walletAddress,
+        },
+      ],
+    },
+    {
+      title: dict.simulate.groups.erc20Activity,
+      icon: Activity,
+      fields: [
+        {
+          label: dict.simulate.fields.totalErc20Tx,
+          name: "total_erc20_tnxs",
+          type: "number",
+        },
+        {
+          label: dict.simulate.fields.uniqueContract,
+          name: "erc20_uniq_rec_contract_addr",
+          type: "number",
+        },
+        {
+          label: dict.simulate.fields.uniqueToken,
+          name: "erc20_uniq_rec_token_name",
+          type: "number",
+        },
+        {
+          label: dict.simulate.fields.uniqueReceiverAddress,
+          name: "erc20_uniq_rec_addr",
+          type: "number",
+        },
+      ],
+    },
+    {
+      title: dict.simulate.groups.valueTiming,
+      icon: Binary,
+      fields: [
+        {
+          label: dict.simulate.fields.timeDiffMins,
+          name: "time_diff_mins",
+          type: "number",
+        },
+        {
+          label: dict.simulate.fields.ethReceived,
+          name: "total_ether_received",
+          type: "number",
+          step: "any",
+        },
+        {
+          label: dict.simulate.fields.avgMinBetweenReceived,
+          name: "avg_min_between_rec",
+          type: "number",
+          step: "any",
+        },
+        {
+          label: dict.simulate.fields.avgValueReceived,
+          name: "avg_val_received",
+          type: "number",
+          step: "any",
+        },
+      ],
+    },
+    {
+      title: dict.simulate.groups.structuralSignals,
+      icon: Sparkles,
+      fields: [
+        {
+          label: dict.simulate.fields.totalTxInclCreate,
+          name: "total_transactions_incl_create",
+          type: "number",
+        },
+        {
+          label: dict.simulate.fields.uniqueFromAddresses,
+          name: "unique_received_from_addresses",
+          type: "number",
+        },
+      ],
+    },
+  ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -167,6 +174,9 @@ export default function SimulateView({ onSimulate }: SimulateViewProps) {
     onSimulate(formData);
   };
 
+  const numberLocale =
+    locale === "vi" ? "vi-VN" : locale === "ru" ? "ru-RU" : "en-US";
+
   return (
     <div className="animate-fadeIn w-full space-y-6">
       <section className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -177,44 +187,43 @@ export default function SimulateView({ onSimulate }: SimulateViewProps) {
             <div className="max-w-3xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[11px] font-semibold tracking-wide text-blue-700">
                 <PlusCircle className="h-3.5 w-3.5" />
-                Live Simulation
+                {dict.simulate.hero.badge}
               </div>
 
               <h2 className="mt-4 text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
-                Simulate a new wallet transaction profile
+                {dict.simulate.hero.title}
               </h2>
 
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-                Submit a fresh identity and transaction feature set to run a
-                real-time fraud evaluation through the model pipeline.
+                {dict.simulate.hero.description}
               </p>
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 xl:min-w-[360px]">
               <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  Input mode
+                  {dict.simulate.summary.inputModeLabel}
                 </p>
                 <p className="mt-1 text-sm font-bold text-slate-900">
-                  Manual features
+                  {dict.simulate.summary.inputModeValue}
                 </p>
               </div>
 
               <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  Engine
+                  {dict.simulate.summary.engineLabel}
                 </p>
                 <p className="mt-1 text-sm font-bold text-slate-900">
-                  Real-time scoring
+                  {dict.simulate.summary.engineValue}
                 </p>
               </div>
 
               <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  Result
+                  {dict.simulate.summary.resultLabel}
                 </p>
                 <p className="mt-1 text-sm font-bold text-slate-900">
-                  Risk label
+                  {dict.simulate.summary.resultValue}
                 </p>
               </div>
             </div>
@@ -241,7 +250,7 @@ export default function SimulateView({ onSimulate }: SimulateViewProps) {
                   </div>
                   <div>
                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                      Input group
+                      {dict.simulate.groupLabel}
                     </p>
                     <h3 className="text-base font-bold text-slate-900">
                       {group.title}
@@ -282,42 +291,47 @@ export default function SimulateView({ onSimulate }: SimulateViewProps) {
             <div className="flex items-center gap-2">
               <div className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                Submission summary
+                {dict.simulate.preview.label}
               </p>
             </div>
 
             <h3 className="mt-3 text-lg font-semibold text-white">
-              Current payload preview
+              {dict.simulate.preview.title}
             </h3>
 
             <div className="mt-5 space-y-3 text-sm">
               <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-3">
-                <p className="text-slate-400">User ID</p>
+                <p className="text-slate-400">{dict.simulate.preview.userId}</p>
                 <p className="mt-1 break-all font-medium text-white">
-                  {formData.user_id || "Not provided"}
+                  {formData.user_id || dict.simulate.preview.notProvided}
                 </p>
               </div>
 
               <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-3">
-                <p className="text-slate-400">Wallet Address</p>
+                <p className="text-slate-400">
+                  {dict.simulate.preview.walletAddress}
+                </p>
                 <p className="mt-1 break-all font-mono text-white">
-                  {formData.target_address || "0x..."}
+                  {formData.target_address || dict.simulate.preview.walletFallback}
                 </p>
               </div>
 
               <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-3">
-                <p className="text-slate-400">Feature Count</p>
-                <p className="mt-1 font-medium text-white">10 indicators</p>
+                <p className="text-slate-400">
+                  {dict.simulate.preview.featureCount}
+                </p>
+                <p className="mt-1 font-medium text-white">
+                  {dict.simulate.preview.featureCountValue}
+                </p>
               </div>
             </div>
 
             <div className="mt-5 rounded-xl border border-blue-500/20 bg-blue-500/10 px-4 py-3">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-200">
-                Submission note
+                {dict.simulate.note.label}
               </p>
               <p className="mt-2 text-sm leading-6 text-slate-300">
-                This form sends the manually entered feature set for immediate
-                scoring through the existing simulation flow.
+                {dict.simulate.note.description}
               </p>
             </div>
 
@@ -325,7 +339,7 @@ export default function SimulateView({ onSimulate }: SimulateViewProps) {
               type="submit"
               className="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition-all hover:bg-slate-100"
             >
-              Push Transaction Flow
+              {dict.simulate.submitButton}
             </button>
           </section>
         </div>
