@@ -241,7 +241,7 @@ export default function AuditView({ onSearch }: AuditViewProps) {
                       isSuspicious ? "text-rose-600" : "text-emerald-600"
                     }`}
                   >
-                    {(searchResult.risk_score * 100).toFixed(0)}%
+                    {(searchResult.risk_score * 100).toFixed(2)}%
                   </p>
                 </div>
               </div>

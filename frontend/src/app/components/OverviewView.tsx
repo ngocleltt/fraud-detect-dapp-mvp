@@ -242,7 +242,7 @@ export default function OverviewView({
                         : "text-emerald-600"
                     }`}
                   >
-                    {(user.risk_score * 100).toFixed(0)}%
+                    {(user.risk_score * 100).toFixed(2)}%
                   </td>
                   <td className="px-4 py-3 text-center">
                     <span
