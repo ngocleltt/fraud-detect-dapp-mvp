@@ -5,6 +5,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
+from typing import List, Dict, Any
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 load_dotenv()
 
@@ -19,7 +21,7 @@ app.add_middleware(
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATASET_PATH = os.path.join(BASE_DIR, "dataset.json")
+CID_LIST_FILE = os.path.join(BASE_DIR, "ipfs_cids.json")
 PINATA_JWT = os.getenv("PINATA_JWT")
 
 class UserFeaturesInput(BaseModel):
@@ -39,18 +41,31 @@ class SimulateRequest(BaseModel):
     target_address: str
     features: UserFeaturesInput
 
-def load_dataset():
-    if not os.path.exists(DATASET_PATH):
-        return {"metadata": {}, "users": []}
-    with open(DATASET_PATH, "r", encoding="utf-8") as f:
+# ---------- IPFS CID management ----------
+def load_cid_list() -> List[str]:
+    if not os.path.exists(CID_LIST_FILE):
+        return []
+    with open(CID_LIST_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
 
-def save_dataset(data):
-    with open(DATASET_PATH, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+def save_cid_list(cids: List[str]):
+    with open(CID_LIST_FILE, "w", encoding="utf-8") as f:
+        json.dump(cids, f, indent=2)
 
+def fetch_user_from_ipfs(cid: str) -> Dict[str, Any]:
+    gateway_url = f"https://blue-obedient-eagle-118.mypinata.cloud/ipfs/{cid}"
+    try:
+        response = requests.get(gateway_url, timeout=30)  
+        if response.status_code == 200:
+            return response.json()
+    except Exception as e:
+        print(f"Error fetching {cid}: {e}")
+    return None
+
+# ---------- Pinata upload ----------
 def upload_to_ipfs(json_data: dict):
     if not PINATA_JWT:
+        print("❌ PINATA_JWT chưa được cấu hình trong .env")
         return None
         
     url = "https://api.pinata.cloud/pinning/pinJSONToIPFS"
@@ -67,12 +82,20 @@ def upload_to_ipfs(json_data: dict):
     }
     try:
         response = requests.post(url, json=payload, headers=headers)
+        print(f"📡 Pinata response status: {response.status_code}")
+        print(f"📄 Response body: {response.text}")
         if response.status_code == 200:
-            return response.json()["IpfsHash"]
-        return None
-    except:
+            cid = response.json()["IpfsHash"]
+            print(f"✅ Upload successful! CID: {cid}")
+            return cid
+        else:
+            print(f"❌ Upload failed. Status: {response.status_code}")
+            return None
+    except Exception as e:
+        print(f"❌ Exception: {e}")
         return None
 
+# ---------- Risk score ----------
 def calculate_risk_score(features: UserFeaturesInput) -> float:
     score = 0.0
     if features.total_erc20_tnxs > 1000:
@@ -95,22 +118,31 @@ def calculate_risk_score(features: UserFeaturesInput) -> float:
         score += 0.15
     return min(score, 1.0)
 
+# ---------- API Endpoints ----------
 @app.get("/api/users")
 def get_all_users():
-    return load_dataset()
+    cids = load_cid_list()
+    users = []
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        future_to_cid = {executor.submit(fetch_user_from_ipfs, cid): cid for cid in cids}
+        for future in as_completed(future_to_cid):
+            user = future.result()
+            if user:
+                users.append(user)
+    return {"users": users}
 
 @app.get("/api/users/{search_id}")
 def get_user_by_id_or_address(search_id: str):
-    data = load_dataset()
-    for user in data.get("users", []):
-        if user["user_id"].lower() == search_id.lower() or user["target_address"].lower() == search_id.lower():
-            return user
+    cids = load_cid_list()
+    for cid in cids:
+        user = fetch_user_from_ipfs(cid)
+        if user:
+            if user["user_id"].lower() == search_id.lower() or user["target_address"].lower() == search_id.lower():
+                return user
     raise HTTPException(status_code=404, detail="Wallet profile not found in registry")
 
 @app.post("/api/simulate")
 def simulate_transaction(payload: SimulateRequest):
-    data = load_dataset()
-    
     risk_score = calculate_risk_score(payload.features)
     classification = "suspicious" if risk_score > 0.4 else "safe"
     
@@ -134,12 +166,13 @@ def simulate_transaction(payload: SimulateRequest):
     }
     
     cid = upload_to_ipfs(new_user)
-    if cid:
-        new_user["ipfs_cid"] = cid
-
-    data["users"].insert(0, new_user)
-    if "metadata" in data and "total_records" in data["metadata"]:
-        data["metadata"]["total_records"] = len(data["users"])
-        
-    save_dataset(data)
+    if not cid:
+        raise HTTPException(status_code=500, detail="Failed to upload to IPFS")
+    
+    cids = load_cid_list()
+    if cid not in cids:
+        cids.insert(0, cid)
+        save_cid_list(cids)
+    
+    new_user["ipfs_cid"] = cid
     return new_user
