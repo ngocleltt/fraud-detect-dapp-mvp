@@ -129,7 +129,7 @@ The fraud detection model is an XGBoost classifier trained with:
 - GridSearchCV for hyperparameter optimization
 - Optimal threshold tuning (default: 0.52)
 <p align="center">
-  <img width="700" align="center" src=".model/plots/model_evaluation.png" alt="ChainEye Forensics Demo"/>
+  <img width="700" align="center" src="./model/plots/model_evaluation.png" alt="ChainEye Forensics Demo"/>
 </p>
 
 ---
