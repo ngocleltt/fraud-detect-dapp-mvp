@@ -173,33 +173,6 @@ export default function Header({
               )}
             </div>
 
-            {isConnected ? (
-              <div className="flex items-center gap-2">
-                <div className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700">
-                  <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                  <span className="font-mono">
-                    {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
-                  </span>
-                </div>
-
-                <button
-                  onClick={onDisconnect}
-                  className="rounded-xl border border-slate-200 bg-white p-2 text-slate-400 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500"
-                  aria-label={dict.header.disconnectWallet}
-                  title={dict.header.disconnectWallet}
-                >
-                  <LogOut className="h-4 w-4" />
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setShowModal(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-slate-800"
-              >
-                <Wallet className="h-4 w-4" />
-                {dict.header.connectWallet}
-              </button>
-            )}
           </div>
         </div>
       </header>
