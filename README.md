@@ -1,45 +1,75 @@
-# fraud-detect-dapp-mvp
-An AI-powered DApp MVP for detecting suspicious behavior and anomalies in blockchain networks based on transaction analysis.
+<h1 align="center">Welcome to ChainEye Forensics 👋</h1>
+<p align="center">
+  <img src="https://img.shields.io/badge/blockchain-AI%20Powered-blue" />
+  <img src="https://img.shields.io/badge/version-1.0.0-blue" />
+  <a href="https://github.com/ngocleltt/fraud-detect-dapp-mvp">
+    <img alt="GitHub stars" src="https://img.shields.io/github/stars/ngocleltt/fraud-detect-dapp-mvp?style=social" target="_blank" />
+  </a>
+  <a href="https://github.com/YOUR_USERNAME/fraud-detect-dapp-mvp/blob/main/LICENSE">
+    <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-yellow.svg" target="_blank" />
+  </a>
+  <img src="https://img.shields.io/badge/AI-XGBoost-orange" />
+  <img src="https://img.shields.io/badge/backend-FastAPI-green" />
+  <img src="https://img.shields.io/badge/frontend-Next.js-black" />
+  <img src="https://img.shields.io/badge/storage-IPFS%2BPinata-purple" />
+  <img src="https://img.shields.io/badge/contract-Solidity-363636" />
+</p>
 
-Tema : Разработка системы выявления подозрительного поведения пользователей в блокчейн-сетях на основе анализа транзакций с использованием методов искусственного интеллекта.
-DApp phát hiện ví gian lận sử dụng mô hình lưu trữ lai (Hybrid Storage) và chấm điểm bằng AI (XGBoost). 
+> An AI-powered DApp MVP for detecting suspicious behavior and anomalies in blockchain networks based on transaction analysis.
 
----
+## ✨ Demo
+
+ChainEye Forensics analyzes wallet transactions using an XGBoost model trained on 10 key features:
+
+<p align="center">
+  <img width="700" align="center" src="https://via.placeholder.com/700x400?text=ChainEye+Forensics+Demo" alt="demo"/>
+</p>
+
+## 🎯 10 Features for Fraud Detection
+
+| # | Feature | Description |
+|---|---------|-------------|
+| 1 | `Total ERC20 tnxs` | Total number of ERC20 transactions |
+| 2 | `ERC20 uniq rec contract addr` | Unique recipient contract addresses |
+| 3 | `ERC20 uniq rec token name` | Unique token names received |
+| 4 | `ERC20 uniq rec addr` | Unique recipient addresses |
+| 5 | `Time Diff between first and last (Mins)` | Time span of activity in minutes |
+| 6 | `total ether received` | Total ETH received |
+| 7 | `Avg min between received tnx` | Average minutes between transactions |
+| 8 | `avg val received` | Average transaction value received |
+| 9 | `total transactions (including tnx to create contract)` | Total transactions including contract creation |
+| 10 | `Unique Received From Addresses` | Number of unique senders |
+
+## 🏗️ Architecture
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ ChainEye Forensics │
+├─────────────────┬─────────────────┬─────────────────────────────────┤
+│ Frontend │ Backend │ Storage │
+│ (Next.js) │ (FastAPI) │ │
+├─────────────────┼─────────────────┼─────────────────────────────────┤
+│ • Web3 Auth │ • XGBoost Model│ • IPFS (Pinata) │
+│ • Overview │ • Feature Eng │ • Smart Contract │
+│ • Audit View │ • Prediction │ (CID Registry) │
+│ • Simulation │ • CID Mgmt │ │
+└─────────────────┴─────────────────┴─────────────────────────────────┘
+
+
+## 🚀 Installation
+
+### Prerequisites
+
+- Node.js (v16+)
+- Python 3.9+
+- npm or yarn
+- MetaMask or any Web3 wallet (for blockchain interaction)
+- Pinata account (for IPFS storage)
+
+### Clone the repository
+
+```sh
+git clone https://github.com/YOUR_USERNAME/fraud-detect-dapp-mvp.git
+cd fraud-detect-dapp-mvp
 
 
 
-### Frontend
-
-* **Auth Layer (Web3 UX):** user login (bằng địa chỉ ví ảo). Frontend lấy địa chỉ ví công khai (`0x...`) làm ID định danh.
-* **Batch Mode Component:** Khi tải trang, Client-side gọi API lấy DB tĩnh từ Backend , render ra bảng Table chứa danh sách 15-20 users mẫu kèm nhãn trạng thái `SAFE` hoặc `SUSPICIOUS` có sẵn.
-* **Real-time Form Component:** Cung cấp biểu mẫu (Form) để user tự nhập thông số giao dịch mới, sau đó đẩy data xuống API Backend bằng phương thức POST. Nếu kết quả trả về là ví bẩn, giao diện tự động update redflag.
-
-### Backend
-
-* Database gốc (`dataset.json`) chứa thông tin người dùng được upload lên **IPFS** để tối ưu hóa chi phí lưu trữ (thông qua Pinata.cloud)
-* Smart Contract Solidity (`DatasetRegistry.sol`) lưu trữ duy nhất chuỗi mã **CID** của file dữ liệu trên chuỗi. Khi DB thay đổi, Backend sẽ push file mới lên IPFS và ký giao dịch cập nhật CID mới lên Contract.
-    
-* **Core Logic Layer (AI + API):**
-  * Mô hình AI (XGBoost) học dựa trên 10 chỉ số giao dịch.
-  * FastAPI tiếp nhận dữ liệu giao dịch mới từ Frontend -> Tính toán lại các chỉ số đặc trưng -> Đẩy vào mô hình `fraud_model.pkl` chấm điểm real-time -> Trả kết quả trạng thái về cho Frontend, đồng thời kích hoạt luồng cập nhật dữ liệu lên IPFS và Blockchain.
-
-
----
-### 10 features được chọn: 
-* `Total ERC20 tnxs`
-* `ERC20 uniq rec contract addr`
-* `ERC20 uniq rec token name`
-* `ERC20 uniq rec addr`
-* `Time Diff between first and last (Mins)`
-* `total ether received`
-* `Avg min between received tnx`
-* `avg val received` 
-* `total transactions (including tnx to create contract)` 
-* `Unique Received From Addresses`
-
----
-### How to run
-* frontend : npm run dev
-* backend : uvicorn main:app --reload --port 8000
-
----
