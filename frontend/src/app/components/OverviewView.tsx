@@ -452,9 +452,9 @@ export default function OverviewView({
                 processedUsers.map((user) => (
                   <tr
                     key={`${user.user_id}-${user.target_address}`}
-                    className="text-sm text-slate-600 transition-colors hover:bg-slate-50/80"
+                    className="cursor-pointer text-sm text-slate-600 transition-colors duration-150 hover:bg-slate-200/70"
                   >
-                    <td className="px-4 py-3 font-semibold text-blue-600">
+                    <td className="px-4 py-3 font-semibold text-blue-600 transition-colors group-hover:text-blue-700">
                       {user.user_id}
                     </td>
 
@@ -479,7 +479,10 @@ export default function OverviewView({
                     </td>
 
                     <td className="px-4 py-3 font-mono">
-                      {user.features["total ether received"]}
+                      {user.features["total ether received"].toLocaleString(numberLocale, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </td>
 
                     <td className="px-4 py-3 font-mono">
@@ -488,8 +491,8 @@ export default function OverviewView({
 
                     <td className="px-4 py-3 font-mono">
                       {user.features["avg val received"].toLocaleString(numberLocale, {
-                        minimumFractionDigits: 6,
-                        maximumFractionDigits: 6,
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 3,
                       })}
                     </td>
 
