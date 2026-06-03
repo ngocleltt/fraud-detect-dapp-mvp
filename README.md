@@ -22,8 +22,20 @@
 ChainEye Forensics analyzes wallet transactions using an XGBoost model trained on 10 key features:
 
 <p align="center">
-  <img width="700" align="center" src="./demo-1.png" alt="ChainEye Forensics Demo"/>
+  <img width="700" align="center" src="./demo_1.png" alt="ChainEye Forensics Demo"/>
 </p>
+
+<p align="center">
+  <img width="700" align="center" src="./demo_2.png" alt="ChainEye Forensics Demo"/>
+</p>
+<p align="center">
+  <img width="700" align="center" src="./demo_3.png" alt="ChainEye Forensics Demo"/>
+</p>
+
+<p align="center">
+  <img width="700" align="center" src="./demo_4.png" alt="ChainEye Forensics Demo"/>
+</p>
+
 
 ---
 ### Project structure
@@ -116,6 +128,9 @@ The fraud detection model is an XGBoost classifier trained with:
 - SMOTE (sampling_strategy=0.6) for class imbalance
 - GridSearchCV for hyperparameter optimization
 - Optimal threshold tuning (default: 0.52)
+<p align="center">
+  <img width="700" align="center" src=".model/plots/model_evaluation.png" alt="ChainEye Forensics Demo"/>
+</p>
 
 ---
 
