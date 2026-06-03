@@ -40,21 +40,6 @@ ChainEye Forensics analyzes wallet transactions using an XGBoost model trained o
 | 9 | `total transactions (including tnx to create contract)` | Total transactions including contract creation |
 | 10 | `Unique Received From Addresses` | Number of unique senders |
 
-## 🏗️ Architecture
-
-┌─────────────────────────────────────────────────────────────────────┐
-│ ChainEye Forensics │
-├─────────────────┬─────────────────┬─────────────────────────────────┤
-│ Frontend │ Backend │ Storage │
-│ (Next.js) │ (FastAPI) │ │
-├─────────────────┼─────────────────┼─────────────────────────────────┤
-│ • Web3 Auth │ • XGBoost Model│ • IPFS (Pinata) │
-│ • Overview │ • Feature Eng │ • Smart Contract │
-│ • Audit View │ • Prediction │ (CID Registry) │
-│ • Simulation │ • CID Mgmt │ │
-└─────────────────┴─────────────────┴─────────────────────────────────┘
-
-
 ## 🚀 Installation
 
 ### Prerequisites
@@ -70,6 +55,10 @@ ChainEye Forensics analyzes wallet transactions using an XGBoost model trained o
 ```sh
 git clone https://github.com/YOUR_USERNAME/fraud-detect-dapp-mvp.git
 cd fraud-detect-dapp-mvp
+```
 
-
-
+### Backend Setup
+```sh
+cd backend
+pip install fastapi uvicorn pandas numpy scikit-learn xgboost imbalanced-learn requests python-dotenv
+```
