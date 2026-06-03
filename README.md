@@ -28,6 +28,7 @@ ChainEye Forensics analyzes wallet transactions using an XGBoost model trained o
 ---
 ### Project structure
 
+```plaintext
 fraud-detect-dapp-mvp/
 ├── backend/
 │   ├── main.py              # FastAPI application
@@ -49,7 +50,7 @@ fraud-detect-dapp-mvp/
 ├── contract/
 │   └── DatasetRegistry.sol  # Smart contract for CID storage
 └── README.md
-
+```
 
 ---
 ## 🎯 10 Features for Fraud Detection
@@ -133,10 +134,9 @@ The fraud detection model is an XGBoost classifier trained with:
 ---
 
 ## 👤Author
-- Ngoc Le : @ngocleltt
-- Hieu Pham : @H1eu10
-- Ngu Giang : @ngugiang
-
+- **Ngoc Le** - [@ngocleltt](https://github.com/ngocleltt)
+- **Hieu Pham** - [@H1eu10](https://github.com/H1eu10)
+- **Ngu Giang** - [@ngugiang](https://github.com/ngugiang)
 ---
 ## 📝License
 Copyright © 2026 ngocleltt.
