@@ -9,6 +9,7 @@ import AuditView from "./components/AuditView";
 import SimulateView from "./components/SimulateView";
 import HowItWorksView from "./components/HowItWorksView";
 import { dictionaries, type Locale } from "./locales";
+import { saveCID } from "./utils/contract";
 
 interface UserFeatures {
   "Total ERC20 tnxs": number;
@@ -225,6 +226,17 @@ export default function Home() {
 
       if (res.ok) {
         const freshUser = await res.json();
+        console.log("Full freshUser:", freshUser);
+        const cid = freshUser.ipfs_cid;
+        console.log("CID from backend:", cid);
+        if (cid && cid.trim() !== "") {
+          try {
+            const txHash = await saveCID(cid);
+            console.log("Blockchain success, tx:", txHash);
+          } catch (err) {
+            console.error("Blockchain error:", err);
+          }
+        }
         setUsers((prev) => [freshUser, ...prev]);
         setTerminalLogs((prev) => [
           ...prev,
