@@ -431,6 +431,60 @@ const en = {
     unavailable: "Unavailable",
     cancel: "Cancel",
   },
+    graphicsPanel: {
+    badge: "GRAPHICS PANEL",
+    title: "Market-style forensic signals",
+    subtitle: "Clean metric visuals for current wallet activity",
+
+    tabs: {
+      risk: "Risk",
+      eth: "ETH",
+      erc20: "ERC20",
+      velocity: "Velocity",
+    },
+
+    noData: "No dataset loaded yet",
+
+    overview: {
+      totalRecords: "Total records",
+      suspiciousRate: "Suspicious rate",
+      avgRisk: "Average risk",
+      avgEth: "Avg ETH received",
+    },
+
+    chart: {
+      eyebrow: "METRIC MOVEMENT",
+      title: "Line trend across loaded records",
+      subtitle: "A cleaner market-inspired view for the selected metric",
+      currentLabel: "Current",
+      deltaLabel: "Delta",
+    },
+
+    distribution: {
+      eyebrow: "CLASS BALANCE",
+      title: "Current SAFE vs SUSPICIOUS split",
+      subtitle: "Distribution of classified wallets in the loaded dataset",
+      safe: "Safe",
+      suspicious: "Suspicious",
+    },
+
+    leaders: {
+      eyebrow: "TOP MOVERS",
+      title: "Highest values under selected metric",
+      subtitle: "Top wallets ranked by the active metric",
+    },
+
+    insight: {
+      eyebrow: "METRIC INSIGHT",
+      title: "What this view emphasizes",
+      descriptions: {
+        risk: "Risk mode highlights model score pressure and makes anomaly-heavy wallets easier to spot at a glance.",
+        eth: "ETH mode emphasizes incoming value scale and helps surface wallets with unusually large received volume.",
+        erc20: "ERC20 mode focuses on token transaction activity and helps reveal dense interaction patterns.",
+        velocity: "Velocity mode approximates transaction density over observed time and helps surface compressed activity bursts.",
+      },
+    },
+  },
 } as const;
 
 export default en;

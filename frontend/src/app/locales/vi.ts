@@ -431,6 +431,60 @@ const vi = {
     unavailable: "Không khả dụng",
     cancel: "Hủy",
   },
+  graphicsPanel: {
+    badge: "GRAPHICS PANEL",
+    title: "Tín hiệu pháp chứng kiểu thị trường",
+    subtitle: "Biểu đồ chỉ số gọn gàng cho hoạt động ví hiện tại",
+
+    tabs: {
+      risk: "Rủi ro",
+      eth: "ETH",
+      erc20: "ERC20",
+      velocity: "Tốc độ",
+    },
+
+    noData: "Chưa có dữ liệu để hiển thị",
+
+    overview: {
+      totalRecords: "Tổng bản ghi",
+      suspiciousRate: "Tỷ lệ đáng ngờ",
+      avgRisk: "Rủi ro trung bình",
+      avgEth: "ETH nhận trung bình",
+    },
+
+    chart: {
+      eyebrow: "BIẾN ĐỘNG CHỈ SỐ",
+      title: "Xu hướng đường theo các bản ghi đã tải",
+      subtitle: "Góc nhìn kiểu thị trường gọn gàng hơn cho chỉ số đang chọn",
+      currentLabel: "Hiện tại",
+      deltaLabel: "Biến động",
+    },
+
+    distribution: {
+      eyebrow: "CÂN BẰNG PHÂN LOẠI",
+      title: "Tỷ trọng hiện tại giữa SAFE và SUSPICIOUS",
+      subtitle: "Phân bố các ví đã được phân loại trong tập dữ liệu hiện tại",
+      safe: "An toàn",
+      suspicious: "Đáng ngờ",
+    },
+
+    leaders: {
+      eyebrow: "NHÓM DẪN ĐẦU",
+      title: "Các giá trị cao nhất theo chỉ số đang chọn",
+      subtitle: "Top ví được xếp hạng theo chỉ số đang kích hoạt",
+    },
+
+    insight: {
+      eyebrow: "GÓC NHÌN CHỈ SỐ",
+      title: "Màn hình này đang nhấn mạnh điều gì",
+      descriptions: {
+        risk: "Chế độ rủi ro làm nổi bật áp lực từ điểm mô hình và giúp nhận ra nhanh các ví có dấu hiệu bất thường cao.",
+        eth: "Chế độ ETH nhấn mạnh quy mô giá trị nhận vào và giúp làm lộ rõ các ví có khối lượng ETH nhận bất thường.",
+        erc20: "Chế độ ERC20 tập trung vào mức độ hoạt động của giao dịch token và giúp nhận ra các mẫu tương tác dày đặc.",
+        velocity: "Chế độ tốc độ ước lượng mật độ giao dịch theo thời gian quan sát và giúp phát hiện các đợt hoạt động dồn dập.",
+      },
+    },
+  },
 } as const;
 
 export default vi;

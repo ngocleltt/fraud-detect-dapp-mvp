@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import type { Dictionary, Locale } from "../locales";
 import RiskDetailsModal from "./RiskDetailsModal";
+import GraphicsPanel from "./GraphicsPanel";
 
 interface UserFeatures {
   "Total ERC20 tnxs": number;
@@ -237,6 +238,7 @@ export default function OverviewView({
 
   return (
     <>
+    <GraphicsPanel users={users} dict={dict} locale={locale} />
       <div className="animate-fadeIn flex flex-1 flex-col space-y-6">
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
