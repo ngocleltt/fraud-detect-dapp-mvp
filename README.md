@@ -25,6 +25,33 @@ ChainEye Forensics analyzes wallet transactions using an XGBoost model trained o
   <img width="700" align="center" src="https://via.placeholder.com/700x400?text=ChainEye+Forensics+Demo" alt="demo"/>
 </p>
 
+---
+### Project structure
+
+fraud-detect-dapp-mvp/
+├── backend/
+│   ├── main.py              # FastAPI application
+│   ├── ipfs_cids.json       # CID registry cache (auto-generated)
+│   ├── requirements.txt     # Python dependencies
+│   └── .env                 # Environment variables (PINATA_JWT, etc.)
+├── frontend/
+│   ├── app/
+│   │   ├── page.tsx         # Main application
+│   │   ├── components/      # React components
+│   │   ├── locales/         # i18n (EN, VI, RU)
+│   │   └── utils/           # Helper functions (contract.ts, etc.)
+│   └── package.json
+├── model/
+│   ├── train_xgboost.py     # Model training script
+│   ├── fraud_model.pkl      # Trained model artifact
+│   ├── plots/               # Evaluation visualizations
+│   └── transaction_dataset.csv
+├── contract/
+│   └── DatasetRegistry.sol  # Smart contract for CID storage
+└── README.md
+
+
+---
 ## 🎯 10 Features for Fraud Detection
 
 | # | Feature | Description |
@@ -62,3 +89,55 @@ cd fraud-detect-dapp-mvp
 cd backend
 pip install fastapi uvicorn pandas numpy scikit-learn xgboost imbalanced-learn requests python-dotenv
 ```
+
+### Start the Backend Server
+```sh
+cd backend
+uvicorn main:app --reload --port 8000
+```
+The backend API will be available at http://localhost:8000
+```sh
+INFO:     Started server process
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000
+```
+
+### Frontend Application
+```sh
+cd frontend
+npm run dev
+```
+The frontend will be available at http://localhost:3000
+
+---
+## AI model
+The fraud detection model is an XGBoost classifier trained with:
+- SMOTE (sampling_strategy=0.6) for class imbalance
+- GridSearchCV for hyperparameter optimization
+- Optimal threshold tuning (default: 0.52)
+
+---
+
+## 🙏Acknowledgments
+- XGBoost - Gradient boosting framework
+- FastAPI - Modern Python backend
+- Next.js - React framework
+- IPFS & Pinata - Decentralized storage
+- Ethereum - Smart contract platform
+- scikit-learn - ML utilities
+- imbalanced-learn - SMOTE implementation
+- Tailwind CSS - UI styling
+- Lucide Icons - Icon library
+
+---
+
+## 👤Author
+- Ngoc Le : @ngocleltt
+- Hieu Pham : @H1eu10
+- Ngu Giang : @ngugiang
+
+---
+## 📝License
+Copyright © 2026 ngocleltt.
+This project is MIT licensed.
