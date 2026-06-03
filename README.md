@@ -22,7 +22,7 @@
 ChainEye Forensics analyzes wallet transactions using an XGBoost model trained on 10 key features:
 
 <p align="center">
-  <img width="700" align="center" src="https://via.placeholder.com/700x400?text=ChainEye+Forensics+Demo" alt="demo"/>
+  <img width="700" align="center" src="./demo-1.png" alt="ChainEye Forensics Demo"/>
 </p>
 
 ---
@@ -33,7 +33,6 @@ fraud-detect-dapp-mvp/
 ├── backend/
 │   ├── main.py              # FastAPI application
 │   ├── ipfs_cids.json       # CID registry cache (auto-generated)
-│   ├── requirements.txt     # Python dependencies
 │   └── .env                 # Environment variables (PINATA_JWT, etc.)
 ├── frontend/
 │   ├── app/
@@ -43,12 +42,12 @@ fraud-detect-dapp-mvp/
 │   │   └── utils/           # Helper functions (contract.ts, etc.)
 │   └── package.json
 ├── model/
-│   ├── train_xgboost.py     # Model training script
+│   ├── train_fraud_model.py # Model training script
 │   ├── fraud_model.pkl      # Trained model artifact
 │   ├── plots/               # Evaluation visualizations
 │   └── transaction_dataset.csv
 ├── contract/
-│   └── DatasetRegistry.sol  # Smart contract for CID storage
+│   └── CidStorage.sol  # Smart contract for CID storage
 └── README.md
 ```
 
