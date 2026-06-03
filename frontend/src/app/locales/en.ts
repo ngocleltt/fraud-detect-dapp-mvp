@@ -93,6 +93,57 @@ const en = {
     telemetry: "Live forensic telemetry",
   },
 
+  riskModal: {
+    panelLabel: "Risk details panel",
+    close: "Close",
+    walletAddress: "Wallet address",
+    riskScore: "Risk score",
+    confidenceHint: "Model classification confidence view",
+    activityWindow: "Activity window",
+    activityWindowDesc: "Minutes between first and last observed transaction",
+    totalEthReceived: "Total ETH received",
+    totalEthReceivedDesc: "Cumulative inbound ETH value",
+    featureMap: "Feature map",
+    featureMapTitle: "Evaluated transaction indicators",
+    signalSummary: "Signal summary",
+    signalSummaryTitle: "Why this record stands out",
+    interpretation: "Quick interpretation",
+    status: "Status",
+
+    suspiciousInterpretation:
+      "This wallet profile shows a stronger concentration of risky transaction signals, including higher activity density, broader inbound interaction patterns, or unusually compressed transaction timing.",
+    safeInterpretation:
+      "This wallet profile currently falls within a safer operating range based on the observed transaction features in the dataset and does not display unusually strong forensic anomalies.",
+
+    suspiciousStatus:
+      "This identity is flagged as suspicious in the current model output and should be prioritized for deeper audit review.",
+    safeStatus:
+      "This identity is currently marked as safe in the present dataset and model scoring output.",
+
+    signals: {
+      highErc20Density: "High ERC20 transaction density",
+      broadReceiverInteraction: "Broad inbound receiver interaction",
+      manyInboundSources: "Many unique inbound source addresses",
+      compressedWindow: "Compressed activity window",
+      largeEthInflow: "Large cumulative ETH inflow",
+      elevatedAvgValue: "Elevated average received value",
+      noStrongAnomaly: "No unusually strong transaction anomalies detected",
+    },
+
+    features: {
+      totalErc20: "Total ERC20 Txns",
+      uniqContracts: "Unique ERC20 Contracts",
+      uniqTokens: "Unique ERC20 Tokens",
+      uniqReceivers: "Unique Receiver Addresses",
+      activityWindow: "Activity Time Window (mins)",
+      totalEtherReceived: "Total Ether Received",
+      avgMinutesBetween: "Avg Minutes Between Received Txns",
+      avgValueReceived: "Avg Value Received",
+      totalTransactions: "Total Transactions",
+      uniqFrom: "Unique From Addresses",
+    },
+  },
+
   audit: {
     hero: {
       badge: "Account Inspection",
@@ -226,7 +277,7 @@ const en = {
     submitButton: "Push Transaction Flow",
   },
 
-    howItWorks: {
+  howItWorks: {
     hero: {
       badge: "Detection Pipeline",
       title: "How ChainEye processes suspicious wallet activity",
@@ -359,26 +410,27 @@ const en = {
         "Try higher transaction density, more unique sender addresses, or unusually fragmented activity. Example intuition: many incoming sources, compressed timing, and inconsistent transfer behavior.",
     },
   },
+
   header: {
-  brandTitle: "CHAINEYE FORENSICS",
-  brandSubtitle: "ON-CHAIN ANOMALY DETECTION ENGINE",
-  networkLabel: "Network",
-  networkValue: "Ganache Localnet",
-  aiModelLabel: "AI Model",
-  aiModelValue: "XGBoost",
-  languageSwitcherAriaLabel: "Change language",
-  connectWallet: "Connect Wallet",
-  disconnectWallet: "Disconnect wallet",
-  web3Access: "Web3 access",
-  selectWalletProvider: "Select wallet provider",
-  walletModalDescription:
-    "Connect your decentralised identity wallet to enable account audit and smart contract interaction features.",
-  metamaskWallet: "MetaMask Wallet",
-  walletConnect: "WalletConnect",
-  detected: "Detected",
-  unavailable: "Unavailable",
-  cancel: "Cancel",
-},
+    brandTitle: "CHAINEYE FORENSICS",
+    brandSubtitle: "ON-CHAIN ANOMALY DETECTION ENGINE",
+    networkLabel: "Network",
+    networkValue: "Ganache Localnet",
+    aiModelLabel: "AI Model",
+    aiModelValue: "XGBoost",
+    languageSwitcherAriaLabel: "Change language",
+    connectWallet: "Connect Wallet",
+    disconnectWallet: "Disconnect wallet",
+    web3Access: "Web3 access",
+    selectWalletProvider: "Select wallet provider",
+    walletModalDescription:
+      "Connect your decentralised identity wallet to enable account audit and smart contract interaction features.",
+    metamaskWallet: "MetaMask Wallet",
+    walletConnect: "WalletConnect",
+    detected: "Detected",
+    unavailable: "Unavailable",
+    cancel: "Cancel",
+  },
 } as const;
 
 export default en;
