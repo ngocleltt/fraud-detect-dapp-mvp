@@ -115,13 +115,11 @@ cd fraud-detect-dapp-mvp
 
 ### Backend Setup
 ```sh
-cd backend
 pip install fastapi uvicorn pandas numpy scikit-learn xgboost imbalanced-learn requests python-dotenv
 ```
 
 ### Start the Backend Server
 ```sh
-cd backend
 uvicorn main:app --reload --port 8000
 ```
 The backend API will be available at http://localhost:8000
@@ -132,9 +130,8 @@ INFO:     Application startup complete.
 INFO:     Uvicorn running on http://127.0.0.1:8000
 ```
 
-### Frontend Application
+### Start the Frontend Server
 ```sh
-cd frontend
 npm run dev
 ```
 The frontend will be available at http://localhost:3000
