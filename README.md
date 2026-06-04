@@ -16,6 +16,7 @@
 </p>
 
 > An AI-powered DApp MVP for detecting suspicious behavior and anomalies in blockchain networks based on transaction analysis.
+
 > This project was developed as a final-term Blockchain course project at the National University of Science and Technology MISIS in 2026.
 
 ## ✨ Demo
