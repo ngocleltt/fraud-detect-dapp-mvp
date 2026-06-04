@@ -62,6 +62,18 @@ fraud-detect-dapp-mvp/
 │   └── CidStorage.sol  # Smart contract for CID storage
 └── README.md
 ```
+### Product Features
+
+- Overview dashboard with wallet records, fraud scores, and classification labels.[file:255]
+- Dataset filtering by `ALL`, `SAFE`, and `SUSPICIOUS`.[file:255]
+- Wallet audit search by `user_id` or wallet address.[file:3][file:254]
+- Real-time simulation form for submitting new transaction profiles.[file:3][file:254]
+- Automatic dataset update after successful simulation.[file:3]
+- Terminal-style telemetry log for key system events.[file:3]
+- Mock Web3 wallet connect/disconnect flow.[file:3]
+- Multilingual UI support: English, Vietnamese, and Russian.[file:3][cite:120]
+- Backend-driven fraud scoring with XGBoost inference.[file:254]
+- IPFS/Pinata-based persistence for newly generated records.[file:254]
 
 ---
 ## 🎯 10 Features for Fraud Detection
@@ -147,7 +159,7 @@ The fraud detection model is an XGBoost classifier trained with:
 
 ---
 
-## 👤Author
+## 👤Authors
 - **Ngoc Le** - [@ngocleltt](https://github.com/ngocleltt)
 - **Hieu Pham** - [@H1eu10](https://github.com/H1eu10)
 - **Ngu Giang** - [@ngugiang](https://github.com/ngugiang)
