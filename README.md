@@ -149,6 +149,42 @@ The fraud detection model is an XGBoost classifier trained with:
 </p>
 
 ---
+## 📄 Smart Contract: CidStorage
+
+The `CidStorage` contract securely stores IPFS CIDs (Content Identifiers) of audit records on the Ethereum blockchain. It supports history tracking, access control, and management features.
+
+### 🔐 Access Control
+- **Owner** – the account that deployed the contract. Only the owner can add/remove authorized addresses, set limits, or lock the contract.
+- **Authorized addresses** – accounts allowed to call `setCid()` (can be added/removed by owner).
+
+### 📥 Write Functions
+- `setCid(string cid, string reason)` – stores a new CID with an optional reason. Increases `count` and pushes a history record (CID, timestamp, caller, reason).  
+  *Access: only owner or authorized addresses.*
+
+### 📤 Read Functions
+- `getCid()` – returns the most recently stored CID.
+- `getCount()` – returns the total number of times `setCid()` has been called.
+- `getHistoryItem(uint256 index)` – returns a history record (CID, timestamp, caller, reason) by index.
+- `getAllHistory()` – returns the entire history array.
+- `authorized(address)` – checks if an address is authorized.
+- `locked()` / `maxRecords()` – views contract lock status and record limit.
+
+### ⚙️ Management (Owner only)
+- `addAuthorized(address)` / `removeAuthorized(address)` – manage whitelist.
+- `setMaxRecords(uint256)` – limits the maximum number of history entries.
+- `lock()` / `unlock()` – freeze or resume CID recording.
+
+### 📊 Events
+- `CidUpdated` – emitted after each successful storage (includes CID, caller, new count, and reason).
+- `AuthorizationChanged` – emitted when an address is added/removed from the whitelist.
+- `ContractLocked` / `MaxRecordsChanged` – state change events.
+
+### 🔗 Integration
+- The contract is deployed on **Ganache** (local development blockchain) and accessed via **MetaMask**.
+- Frontend functions (`saveCID`, `fetchCID`, `getCount`, `getHistory`) interact with the contract using `ethers.js`.
+- Each simulated transaction stores the IPFS CID on-chain, ensuring immutability and traceability.
+
+---
 
 ## 🙏Acknowledgments
 - XGBoost - Gradient boosting framework
