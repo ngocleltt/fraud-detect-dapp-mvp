@@ -7,12 +7,15 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import numpy as np
 import pandas as pd
 import requests
+import logging
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 load_dotenv()
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="ChainEye Forensics Backend")
 
@@ -219,29 +222,58 @@ def get_user_by_id_or_address(search_id: str):
 
 
 @app.post("/api/simulate")
-def simulate_transaction(payload: SimulateRequest):
-    model_features = features_input_to_model_dict(payload.features)
-    prediction = predict_wallet(model_features)
-
-    new_user = {
-        "user_id": payload.user_id,
-        "target_address": payload.target_address,
-        "classification": prediction["classification"],
-        "risk_score": prediction["score"],
-        "model_label": prediction["label"],
-        "risk_level": prediction["risk_level"],
-        "model_threshold": prediction["threshold"],
-        "features": model_features,
-    }
-
-    cid = upload_to_ipfs(new_user)
-    if not cid:
-        raise HTTPException(status_code=500, detail="Failed to upload to IPFS")
-
-    cids = load_cid_list()
-    if cid not in cids:
-        cids.insert(0, cid)
-        save_cid_list(cids)
-
-    new_user["ipfs_cid"] = cid
-    return new_user
+async def simulate_transaction(request: Request):
+    try:
+        # Đọc raw body
+        body = await request.json()
+        logger.debug(f"Received raw body: {body}")
+        
+        # Validate payload bằng Pydantic
+        payload = SimulateRequest(**body)
+        logger.debug(f"Parsed payload: user_id={payload.user_id}, address={payload.target_address}")
+        
+        # Chuyển features sang dict cho model
+        model_features = features_input_to_model_dict(payload.features)
+        logger.debug(f"Model features: {model_features}")
+        
+        # Dự đoán
+        prediction = predict_wallet(model_features)
+        logger.debug(f"Prediction: {prediction}")
+        
+        # Tạo user record
+        new_user = {
+            "user_id": payload.user_id,
+            "target_address": payload.target_address,
+            "classification": prediction["classification"],
+            "risk_score": prediction["score"],
+            "model_label": prediction["label"],
+            "risk_level": prediction["risk_level"],
+            "model_threshold": prediction["threshold"],
+            "features": model_features,
+        }
+        
+        # Upload lên IPFS
+        logger.info("Uploading to IPFS...")
+        cid = upload_to_ipfs(new_user)
+        if not cid:
+            logger.error("IPFS upload failed")
+            raise HTTPException(status_code=500, detail="Failed to upload to IPFS")
+        
+        logger.info(f"IPFS CID: {cid}")
+        
+        # Lưu CID vào danh sách
+        cids = load_cid_list()
+        if cid not in cids:
+            cids.insert(0, cid)
+            save_cid_list(cids)
+        
+        new_user["ipfs_cid"] = cid
+        logger.debug(f"Final user record: {new_user}")
+        
+        return new_user
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Unexpected error in simulate_transaction")
+        raise HTTPException(status_code=500, detail=str(e))

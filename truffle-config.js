@@ -10,7 +10,7 @@ module.exports = {
   },
   compilers: {
     solc: {
-      version: "0.8.20",   // Phiên bản Solidity khớp với contract
+      version: "node_modules/solc",   
       settings: {
         optimizer: { enabled: true, runs: 200 },
         evmVersion: "paris" 

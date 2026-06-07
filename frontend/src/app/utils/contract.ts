@@ -1,49 +1,64 @@
 import { ethers } from "ethers";
 import contractArtifact from "../../abis/CidStorage.json";
 
-const CONTRACT_ADDRESS = "0x08c3c58ac99d4b3D9bD58B08167a3A86A7C2e605";
+// Địa chỉ contract sau khi deploy (giữ nguyên)
+const CONTRACT_ADDRESS = "0x57461dDd08f2df00c4c8E547e71f0aCDc2C91b5D";
 
+// Lấy contract instance (có hoặc không signer)
+export async function getContract(withSigner: boolean = false): Promise<ethers.Contract> {
+  if (!window.ethereum) throw new Error("MetaMask not installed");
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  if (withSigner) {
+    const signer = await provider.getSigner();
+    return new ethers.Contract(CONTRACT_ADDRESS, contractArtifact.abi, signer);
+  }
+  return new ethers.Contract(CONTRACT_ADDRESS, contractArtifact.abi, provider);
+}
+
+// Ghi CID lên blockchain (chỉ cần một tham số)
 export async function saveCID(cid: string): Promise<string> {
   console.log("saveCID called, cid:", cid);
-  if (!window.ethereum) throw new Error("MetaMask not installed");
+  const contract = await getContract(true);
+  const tx = await contract.setCid(cid, { 
+    gasLimit: 1000000,  
+    gasPrice: 20000000000 
+  });
+  console.log("Transaction hash:", tx.hash);
+  const receipt = await tx.wait();
+  console.log("Confirmed in block:", receipt.blockNumber);
+  return receipt.hash;
+}
 
+// Đọc CID hiện tại (string public cid)
+export async function fetchCID(): Promise<string> {
   try {
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();
-    const address = await signer.getAddress();
-    console.log("Signer address:", address);
-
-    const balance = await provider.getBalance(address);
-    console.log("Balance:", ethers.formatEther(balance), "ETH");
-
-    const iface = new ethers.Interface(contractArtifact.abi);
-    const data = iface.encodeFunctionData("setCid", [cid]);
-
-    // Không set gasPrice, nonce, type - để MetaMask tự ước lượng
-    const tx = await signer.sendTransaction({
-      to: CONTRACT_ADDRESS,
-      data: data,
-      gasLimit: 300000,
-    });
-    console.log("Transaction hash:", tx.hash);
-    const receipt = await tx.wait();
-    console.log("Confirmed in block:", receipt.blockNumber);
-    return receipt.hash;
-  } catch (error: any) {
-    console.error("Error:", error);
-    alert("Lỗi: " + error.message);
-    throw error;
+    const contract = await getContract(false);
+    return await contract.cid();
+  } catch (error) {
+    console.error("fetchCID error:", error);
+    return "";
   }
 }
 
-export async function fetchCID(): Promise<string> {
-  if (!window.ethereum) return "";
+// Đọc số lần đã gọi setCid (count)
+export async function getCount(): Promise<number> {
   try {
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const contract = new ethers.Contract(CONTRACT_ADDRESS, contractArtifact.abi, provider);
-    return await contract.cid();
+    const contract = await getContract(false);
+    const count = await contract.count();
+    return Number(count);
   } catch (error) {
-    console.error("Fetch error:", error);
+    console.error("getCount error:", error);
+    return 0;
+  }
+}
+
+// (Tuỳ chọn) Gọi getCid() - giống fetchCID nhưng dùng hàm view riêng
+export async function getCid(): Promise<string> {
+  try {
+    const contract = await getContract(false);
+    return await contract.getCid();
+  } catch (error) {
+    console.error("getCid error:", error);
     return "";
   }
 }
