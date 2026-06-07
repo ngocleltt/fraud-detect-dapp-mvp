@@ -1,10 +1,9 @@
 import { ethers } from "ethers";
 import contractArtifact from "../../abis/CidStorage.json";
 
-// Địa chỉ contract sau khi deploy (giữ nguyên)
-const CONTRACT_ADDRESS = "0x57461dDd08f2df00c4c8E547e71f0aCDc2C91b5D";
+// Địa chỉ contract sau khi deploy (cập nhật đúng)
+const CONTRACT_ADDRESS = "0xddc5519ba3dbdd1dde6801a31211c20321a18957"; 
 
-// Lấy contract instance (có hoặc không signer)
 export async function getContract(withSigner: boolean = false): Promise<ethers.Contract> {
   if (!window.ethereum) throw new Error("MetaMask not installed");
   const provider = new ethers.BrowserProvider(window.ethereum);
@@ -15,13 +14,14 @@ export async function getContract(withSigner: boolean = false): Promise<ethers.C
   return new ethers.Contract(CONTRACT_ADDRESS, contractArtifact.abi, provider);
 }
 
-// Ghi CID lên blockchain (chỉ cần một tham số)
-export async function saveCID(cid: string): Promise<string> {
-  console.log("saveCID called, cid:", cid);
-  const contract = await getContract(true);
-  const tx = await contract.setCid(cid, { 
-    gasLimit: 1000000,  
-    gasPrice: 20000000000 
+// Ghi CID lên blockchain (có lý do)
+export async function saveCID(cid: string, reason: string = ""): Promise<string> {
+  console.log("saveCID called, cid:", cid, "reason:", reason);
+  const contract = await getContract(true);  // lấy contract có signer
+  const tx = await contract.setCid(cid, reason, {
+    gasLimit: 500000,
+    maxFeePerGas: ethers.parseUnits("2", "gwei"),
+    maxPriorityFeePerGas: ethers.parseUnits("2", "gwei"),
   });
   console.log("Transaction hash:", tx.hash);
   const receipt = await tx.wait();
@@ -29,7 +29,7 @@ export async function saveCID(cid: string): Promise<string> {
   return receipt.hash;
 }
 
-// Đọc CID hiện tại (string public cid)
+// Đọc CID hiện tại
 export async function fetchCID(): Promise<string> {
   try {
     const contract = await getContract(false);
@@ -40,7 +40,7 @@ export async function fetchCID(): Promise<string> {
   }
 }
 
-// Đọc số lần đã gọi setCid (count)
+// Đọc số lần ghi (count)
 export async function getCount(): Promise<number> {
   try {
     const contract = await getContract(false);
@@ -52,13 +52,19 @@ export async function getCount(): Promise<number> {
   }
 }
 
-// (Tuỳ chọn) Gọi getCid() - giống fetchCID nhưng dùng hàm view riêng
-export async function getCid(): Promise<string> {
+// Lấy toàn bộ lịch sử (nếu cần)
+export async function getHistory(): Promise<{cid: string, timestamp: number, modifiedBy: string, reason: string}[]> {
   try {
     const contract = await getContract(false);
-    return await contract.getCid();
+    const raw = await contract.getAllHistory();
+    return raw.map((item: any) => ({
+      cid: item.cid,
+      timestamp: Number(item.timestamp),
+      modifiedBy: item.modifiedBy,
+      reason: item.reason
+    }));
   } catch (error) {
-    console.error("getCid error:", error);
-    return "";
+    console.error("getHistory error:", error);
+    return [];
   }
 }

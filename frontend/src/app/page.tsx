@@ -231,7 +231,8 @@ export default function Home() {
         console.log("CID from backend:", cid);
         if (cid && cid.trim() !== "") {
           try {
-            const txHash = await saveCID(cid);
+            const reason = `Simulate at ${new Date().toISOString()}`;
+            const txHash = await saveCID(cid, reason);
             console.log("Blockchain success, tx:", txHash);
           } catch (err) {
             console.error("Blockchain error:", err);
